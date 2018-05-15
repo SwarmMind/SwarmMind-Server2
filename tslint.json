@@ -1,0 +1,84 @@
+{
+   "extends": [
+       "tslint:recommended"
+   ],
+   "rules": { /* https://palantir.github.io/tslint/rules/ */
+       /* "callable-types": true, -- what is the rationale here, interfaces should be preferred */
+       "callable-types": false,
+       /* "no-unused-variable": true, // implicit when 'no-unused-locals' and 'no-unused-parameters' compiler options */
+       "indent": [
+           true,
+           "spaces",
+           4
+       ],
+       "member-ordering": [
+           true,
+           "static-before-instance",
+           "variables-before-functions"
+       ],
+       "no-console": [
+           true,
+           "debug",
+           "info",
+           "time",
+           "timeEnd",
+           "trace"
+       ],
+       "no-empty": false,
+       "no-inferrable-types": [
+           true,
+           "ignore-params"
+       ],
+       "no-string-literal": false,
+       "no-switch-case-fall-through": true,
+       "object-literal-sort-keys": false,
+       "quotemark": [
+           true,
+           "single"
+       ],
+       "whitespace": [
+           true,
+           "check-branch",
+           "check-decl",
+           "check-operator",
+           "check-separator",
+           "check-type",
+           "check-module",
+           "check-preblock"
+       ],
+       "variable-name": [
+           true,
+           "ban-keywords",
+           "check-format",
+           "allow-leading-underscore"
+       ],
+       "forin": false,
+       "member-access": false,
+       "no-shadowed-variable": false,
+       "no-sparse-arrays": true,
+       "array-type": false,
+       "restrict-plus-operands": false,
+       "prefer-for-of": false,
+       "align": [
+           true,
+           /* "parameters", -- prohibits using line break in parameter lists for compact lambdas -> bloats code */
+           "statements",
+           "members"
+       ],
+       "no-consecutive-blank-lines": [
+           true,
+           2
+       ],
+       "no-irregular-whitespace": true,
+       "object-literal-key-quotes": [
+           true,
+           "as-needed"
+       ],
+       "space-before-function-paren": [
+           true,
+           "never"
+       ],
+       "interface-name": false,
+       "no-namespace": false
+   }
+}
