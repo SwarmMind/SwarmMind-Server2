@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+client/_site
+client/.sass-cache
+client/.jekyll-metadata
+package-lock.json
+_reports/
+.vscode/
+.DS_Store
+npm-debug.log
