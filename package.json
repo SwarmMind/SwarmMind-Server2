@@ -9,7 +9,7 @@
     "start": "node dist/index.js",
     "build": "npm run build-ts",
     "test": "npm run build-ts && npm run build-tests && npm run run-tests",
-    "coverage" : "npm run build-ts && npm run build-tests && npm run test-coverage",
+    "coverage": "npm run build-ts && npm run build-tests && npm run test-coverage",
     "try": "npm run build && npm run start",
     "build-tests": "tsc --p tsconfig-tests.json",
     "run-tests": "mocha dist/tests/**/*.js --reporter mochawesome --reporter-options reportDir=dist/test_results",
@@ -20,6 +20,7 @@
   "dependencies": {
     "assert": "^1.4.1",
     "express": "^4.16.3",
+    "flatten-js": "^0.3.9",
     "socket.io": "^2.1.0"
   },
   "devDependencies": {
