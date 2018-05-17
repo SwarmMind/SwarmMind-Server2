@@ -2,7 +2,7 @@
 The Server for the SwarmMind game.
 
 ## Getting Started
-Just clone the repository and run an `npm install`. Then you can build with `npm run build` and start with `npm run start`.
+Just clone the repository and run an `npm install`. Then you can build with `npm run build` and start with `npm run start` or you can just do both in one step with `npm run try`.
 
 ## Exchange format
 The server communicates with the client via `socket.io` events.
