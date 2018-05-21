@@ -9,3 +9,4 @@ _reports/
 .vscode/
 .DS_Store
 npm-debug.log
+.idea

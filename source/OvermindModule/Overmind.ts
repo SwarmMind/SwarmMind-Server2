@@ -2,9 +2,12 @@ import PlayerInterface from './interfaces/PlayerInterface';
 
 import Command from '../utilities/Command';
 import CallCenter from './CallCenter';
-import PlayerManager from './UserManager';
+import User from './User';
 
 export default class Overmind implements PlayerInterface {
+
+    private intervalID: number;
+    private callCenter: CallCenter;
 
     /**
      * getCommandForUnit
@@ -21,12 +24,28 @@ export default class Overmind implements PlayerInterface {
         // TODO: Implement
     }
 
-    // TODO: Later on the overmind should periodically pull the commands,
-    // so that the callcenter does not need to know the overmind
+    public playGame() {
+        this.setInterval(4);
+    }
+
     /**
      * takeCommand
      */
-    public takeCommand(command: Command, userID: number) {
+    public takeCommand(command: Command, user: User) {
         // TODO: Implement
+    }
+
+    // TODO: Later on the overmind should periodically pull the commands,
+    // so that the callcenter does not need to know the overmind
+
+    private processRound() {
+
+    }
+
+    /**
+     * @param {number} duration in seconds
+     */
+    private setInterval(duration: number) {         // if the function is not binded it does not know the this context
+        this.intervalID = setInterval(this.processRound.bind(this), duration * 1000);
     }
 }

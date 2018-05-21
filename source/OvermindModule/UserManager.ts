@@ -1,18 +1,20 @@
-import Player from './User';
+import User from './User';
 
 export default class UserManager {
+    private users: Set<User> = new Set();
     /**
      * registerNewUser
      */
-    public registerNewUser(): number {
-        // TODO: Implement
-        return 42;
+    public registerNewUser(): User {
+        const user = new User();
+        this.users.add(user);
+        return user;
     }
 
     /**
      * removeUser
      */
-    public removeUser(userID: number) {
-        // TODO: Implement
+    public removeUser(user: User) {
+        this.users.delete(user);
     }
 }

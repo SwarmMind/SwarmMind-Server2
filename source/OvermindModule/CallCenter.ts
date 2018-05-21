@@ -10,12 +10,13 @@ import UserManager from './UserManager';
 export default class CallCenter {
     private overmind: Overmind;
     private userManager: UserManager;
-    private sockets: sio.Socket[] = [];
+    private sockets: sio.Socket[];
     private connections: Array<Connection>;
 
     constructor(overmind: Overmind, port = 3000) {
         this.overmind = overmind;
         this.connections = [];
+        this.sockets = [];
 
         const server = http.createServer(app);    // Made APP to a function (thats how its used in the chat example)
         const io = sio(server);
@@ -23,8 +24,8 @@ export default class CallCenter {
         io.on('connection', (socket: sio.Socket) => {
             console.log('A client connected');
 
-            const userID = this.userManager.registerNewUser();
-            const connection = new Connection(socket, userID);
+            const user = this.userManager.registerNewUser();
+            const connection = new Connection(socket, user);
             this.connections.push(connection);
 
             const initState = this.serializeObject(/*this.overmind.getInitState()*/42); // TODO: correction
@@ -33,14 +34,13 @@ export default class CallCenter {
             socket.on('command', (unitID, type, direction) => {
                 console.log('New command: Unit #' + unitID + ' has to ' + type + ' in direction ' + direction);
 
-                const command = new Command(unitID, type, direction);
-                this.overmind.takeCommand(command, userID);
+                this.overmind.takeCommand(new Command(unitID, type, direction), user);
             });
 
             socket.on('disconnect', () => {
                 console.log('A client disconnected');
 
-                this.userManager.removeUser(userID);    // Later on we should store inactive users,
+                this.userManager.removeUser(user);    // Later on we should store inactive users,
                                                         // so that they have a chance to reconnect
                                                         // and can be shown on the leaderboards as well
                 this.connections.splice(this.connections.indexOf(connection), 1);
@@ -58,18 +58,19 @@ export default class CallCenter {
     public sendState(state: any) {
         const stateAsJSON = this.serializeObject(state);
 
-        for (const connection of this.connections) {
-            const socket = connection.getSocket();
-            socket.emit('state', stateAsJSON);
-        }
+        this.connectionsDo((connection) => connection.socket.emit('state', stateAsJSON));
     }
 
     public informGameOver() {
-        for (const connection of this.connections) {
-            const socket = connection.getSocket();
-            socket.emit('gameOver');
-        }
+        this.connectionsDo((connection) => connection.socket.emit('gameOver'));
+
         console.log('Game over');
+    }
+
+    private connectionsDo(fn: (connection: Connection) => void) {
+        for (const connection of this.connections) {
+            fn(connection);
+        }
     }
 
     private serializeObject(object: any) {
