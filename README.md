@@ -18,15 +18,15 @@ The format of the state (as `JSON`) looks like the following:
 ```json
 {
     "roundID": 42,
-    "units": [
+    "players": [
         {
-            "ID": "unit0",
+            "ID": "player0",
             "x": 1,
             "y": 3
         },
         ...
         {
-            "ID": "unitx",
+            "ID": "playerx",
             "x": 3,
             "y": 7
         },
