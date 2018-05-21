@@ -2,7 +2,7 @@
 The Server for the SwarmMind game.
 
 ## Getting Started
-Just clone the repository and run an `npm install`. Then you can build with `npm run build` and start with `npm run start` or you can just do both in one step with `npm run try`.
+Just clone the repository and run an `npm install`. Then you can build with `npm run build` and start with `npm run start`.
 
 ## Exchange format
 The server communicates with the client via `socket.io` events.
@@ -18,17 +18,25 @@ The format of the state (as `JSON`) looks like the following:
 ```json
 {
     "roundID": 42,
-    "mapObjects": [
+    "players": [
         {
-            "ID": "unit0",
-            "posX": 1,
-            "posY": 3
+            "ID": "player0",
+            "x": 1,
+            "y": 3
         },
         ...
         {
+            "ID": "playerx",
+            "x": 3,
+            "y": 7
+        },
+        ...
+    ],
+    "npcs": [
+        {
             "ID": "npc0",
-            "posX": 3,
-            "posY": 7
+            "x": 3,
+            "y": 7
         },
         ...
     ]
@@ -46,8 +54,8 @@ When a client connects, the server sends him an `initState` event. The `initStat
     },
 
     "config": {
-        "sizeX": 73,
-        "sizeY": 42,
+        "width": 73,
+        "height": 42,
         ...
     }
 }
