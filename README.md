@@ -39,6 +39,14 @@ The format of the state (as `JSON`) looks like the following:
             "y": 7
         },
         ...
+    ],
+    "commands": [
+        {
+            "type": "shoot",
+            "direction": "north",
+            "playerID": "player0"
+        },
+        ...
     ]
 }
 ```
