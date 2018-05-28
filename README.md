@@ -20,13 +20,13 @@ The format of the state (as `JSON`) looks like the following:
     "roundID": 42,
     "players": [
         {
-            "ID": "player0",
+            "ID": 0,
             "x": 1,
             "y": 3
         },
         ...
         {
-            "ID": "playerx",
+            "ID": x,
             "x": 3,
             "y": 7
         },
@@ -34,7 +34,7 @@ The format of the state (as `JSON`) looks like the following:
     ],
     "npcs": [
         {
-            "ID": "npc0",
+            "ID": 0,
             "x": 3,
             "y": 7
         },
@@ -44,7 +44,7 @@ The format of the state (as `JSON`) looks like the following:
         {
             "type": "shoot",
             "direction": "north",
-            "playerID": "player0"
+            "playerID": 0
         },
         ...
     ]
