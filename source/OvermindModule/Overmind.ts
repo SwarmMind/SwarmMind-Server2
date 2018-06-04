@@ -4,6 +4,8 @@ import CallCenter from './CallCenter';
 import User from './User';
 import UserManager from './UserManager';
 
+import { Vector } from 'flatten-js';
+
 
 export default class Overmind {
 
@@ -28,14 +30,39 @@ export default class Overmind {
         user.takeCommand(command, this.game.round);
     }
 
-    private chooseCommandsToBeExecuted(): Command[] {        // TODO: should update biases
+    private addVectors(vector1: Vector, vector2: Vector): Vector {
+        return new Vector(vector1.x + vector2.x, vector1.y + vector2.y);
+    }
+
+    private generateCommandsToBeExecuted(): Command[] {        // TODO: should update biases
         const users = UserManager.users;
+        const playerIDs = this.game.playerIDs;
+        const commandCount: Map<number, Map<string, number>> = new Map();
+        const directions: Map<number, Vector> = new Map();
+
+        for (const playerID of playerIDs) {
+            directions.set(playerID, new Vector(0, 0));
+            commandCount.set(playerID, new Map());
+
+            for (const commandType of Command.types) {
+                commandCount.get(playerID).set(commandType, 0);
+            }
+        }
+
+        for (const user of users) {
+            for (const [playerID, command] of user.commands) {
+                directions.set(playerID, this.addVectors(directions.get(playerID), command.direction));
+                commandCount.get(playerID).set(command.type, commandCount.get(playerID).get(command.type) + 1);
+            }
+        }
+
+
         return;
     }
 
     private processRound() {
         const oldGameState = this.game.state;
-        this.game.newRound(this.chooseCommandsToBeExecuted());
+        this.game.newRound(this.generateCommandsToBeExecuted());
         this.callCenter.sendNewRoundInformations(oldGameState, this.game.lastExecutedCommands);
     }
 

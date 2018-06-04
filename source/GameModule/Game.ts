@@ -3,7 +3,7 @@ import NPC from './NPC';
 import Player from './Player';
 import World from './World';
 
-import { Circle, Point, Vector } from 'flatten-js';
+import { Circle, Line, Point, Vector } from 'flatten-js';
 import AttackCommand from '../utilities/AttackCommand';
 import Command from '../utilities/Command';
 import MoveCommand from '../utilities/MoveCommand';
@@ -124,7 +124,24 @@ export default class Game {
         mapObject.moveIn(direction);
     }
 
+    private findPossibleTarget(position: Point, direction: Vector, isPossibleTarget) {
+        const line = new Line(position, direction);
+        const possibleTargets = [];
+
+        for (const possibleTarget of this.store.mapObjects) {
+            if (isPossibleTarget(possibleTarget)) {
+                if (line.intersect(possibleTarget.mapRepresentation).length) {
+                    possibleTargets.push(possibleTarget);
+                }
+            }
+        }
+    }
+
     public attackInDirection(mapObjectID: number, direction: Vector) {
         const mapObject = this.store.getObjectByID(mapObjectID);
+    }
+
+    public get playerIDs() {
+        return this.store.players.map((player) => player.ID);
     }
 }

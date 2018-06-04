@@ -2,7 +2,7 @@ import Command from '../utilities/Command';
 
 
 export default class User {
-    private _commands: Map<string, Command>;
+    private _commands: Map<number, Command>;
     private lastCommandRound: number;
     private _weight: number;
 
@@ -10,15 +10,15 @@ export default class User {
         this._weight = 1;
     }
 
-    public takeCommand(command, round) {
+    public takeCommand(command: Command, round) {
         if (!(round === this.lastCommandRound)) {
             this._commands = new Map();
         }
 
-        this._commands.set(command.playerID, command);
+        this._commands.set(command.mapObjectID, command);
     }
 
-    public get commands() {
-        return Array.from(this._commands.values());
+    public get commands(): Map<number, Command> {
+        return this._commands;
     }
 }

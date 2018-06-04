@@ -7,29 +7,33 @@ import { Circle } from 'flatten-js';
 
 
 export default class FactoryStore {
-    private mapObjects: MapObjectStore = new MapObjectStore();
+    private _mapObjects: MapObjectStore = new MapObjectStore();
 
     private mapObjectCounter: number;
 
     public get players() {
-        return this.mapObjects.players;
+        return this._mapObjects.players;
     }
 
     public get npcs() {
-        return this.mapObjects.npcs;
+        return this._mapObjects.npcs;
+    }
+
+    public get mapObjects() {
+        return this._mapObjects.mapObjects;
     }
 
     /**
      * getObjectByID
      */
     public getObjectByID(ID: number): MapObject {
-        return this.mapObjects.getByID(ID);
+        return this._mapObjects.getByID(ID);
     }
 
     private createMapObject(x: number, y: number, mapObjectClass, addFunctionName: string, representationCreator) {
         const mapObject = new mapObjectClass(this.mapObjectCounter, x, y, representationCreator);
         this.mapObjectCounter++;
-        this.mapObjects[addFunctionName](mapObject);
+        this._mapObjects[addFunctionName](mapObject);
         return mapObject;
     }
 
@@ -51,6 +55,6 @@ export default class FactoryStore {
      * removeObject
      */
     public removeObject(ID: number) {       // quick and dirty
-        this.mapObjects.remove(ID);
+        this._mapObjects.remove(ID);
     }
 }

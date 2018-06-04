@@ -4,10 +4,10 @@ import AttackCommand from './AttackCommand';
 import MoveCommand from './MoveCommand';
 
 export default abstract class Command {
-    static commandTypeList = {
-        attack: AttackCommand,
-        move: MoveCommand,
-    };
+    static commandTypeList = new Map([
+        ['attack', AttackCommand],
+        ['move', MoveCommand],
+    ]);
 
     private _mapObjectID: number;
     protected _direction: Vector;
@@ -16,6 +16,10 @@ export default abstract class Command {
 
     static build(type, ...constructorArguments) {
         return new Command.commandTypeList[type](...constructorArguments);
+    }
+
+    static get types(): string[] {
+        return Array.from(Command.commandTypeList.keys());
     }
 
     constructor(mapObjectID: number, direction: Vector) {

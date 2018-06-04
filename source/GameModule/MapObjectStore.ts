@@ -22,6 +22,10 @@ export default class MapObjectStore {
         return Array.from(this._npcs);
     }
 
+    public get mapObjects() {
+        return Array.from(this.objects.values());
+    }
+
     public addPlayer(player: Player) {
         this.addTo(this._players, player);
     }
