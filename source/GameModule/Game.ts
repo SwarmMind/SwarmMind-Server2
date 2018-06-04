@@ -83,7 +83,14 @@ export default class Game {
     }
 
     private spawnNPC() {
-        // this.addNPC();
+        const direction = Math.floor((Math.random() * 4) + 1);
+        const positionXBorder = Math.random() * (this.world.width - 20) + 10;
+        const positionYBorder = Math.random() * (this.world.height - 20) + 10;
+
+        if (direction === 1) { this.addNPC(positionXBorder, 10); }
+        if (direction === 3) { this.addNPC(positionXBorder, this.world.height - 10); }
+        if (direction === 2) { this.addNPC(10, positionYBorder); }
+        if (direction === 4) { this.addNPC(this.world.width - 10, positionYBorder); }
     }
 
     private executeAndStoreCommands(commands: Command[]) {
