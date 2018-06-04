@@ -1,6 +1,7 @@
 import SIO = require('socket.io');
 import User from './User';
 
+
 export default class Connection {
     constructor(private _socket: SIO.Socket, private _user: User) {
     }

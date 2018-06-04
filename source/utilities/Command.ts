@@ -1,43 +1,57 @@
-import * as assert from 'assert';
+import { Vector } from 'flatten-js';
+import Game from '../GameModule/Game';
+import AttackCommand from './AttackCommand';
+import MoveCommand from './MoveCommand';
 
-export default class Command {
+export default abstract class Command {
+    static commandTypeList = {
+        attack: AttackCommand,
+        move: MoveCommand,
+    };
 
-    private _playerID: string;
-    private _direction: string;
-    private _type: string;
+    private _mapObjectID: number;
+    protected _direction: Vector;
+    protected _type: string;
 
-    constructor(playerID: string, type: string, direction: string) {
-        assert(['move', 'shoot'].includes(type));
-        assert(['north', 'south', 'east', 'west'].includes(direction));
 
-        this._playerID = playerID;
-        this._type = type;
-        this._direction = direction;
+    static build(type, ...constructorArguments) {
+        return new Command.commandTypeList[type](...constructorArguments);
     }
 
-    public get playerID() {
-        return this._playerID;
+    constructor(mapObjectID: number, direction: Vector) {
+        this._mapObjectID = mapObjectID;
+        this._direction = direction.normalize();
     }
 
-    public get direction() {
-        return this._direction;
+    public get mapObjectID() {
+        return this._mapObjectID;
     }
 
     public get type() {
         return this._type;
     }
 
-    public equals(otherCommand: Command) {
-        if (otherCommand.playerID !== this.playerID) {
-            return false;
-        }
-        if (otherCommand.type !== this.type) {
-            return false;
-        }
-        if (otherCommand.direction !== this.direction) {
-            return false;
-        }
+    protected equalsFunctionGenerator(propertyList: string[]) {
+        return function(otherCommand: Command): boolean {
+            for (const key in ['mapObjectID', 'type', 'direction'].concat(propertyList)) {
+                if (otherCommand[key] !== this[key]) {
+                    return false;
+                }
+            }
 
-        return true;
+            return true;
+        };
+    }
+
+    public serialize() {
+        return {mapObjectID: this.mapObjectID, type: this.type};
+    }
+
+    public execute(game: Game) {
+    }
+
+
+    public get direction() {
+        return this._direction;
     }
 }

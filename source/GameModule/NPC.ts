@@ -1,7 +1,12 @@
 import MapObject from './MapObject';
 
+
 export default class NPC extends MapObject {
-    isNPC() {
+    public isNPC() {
         return true;
+    }
+
+    public isInAttackRange(mapObject: MapObject) {
+        return this.distanceTo(mapObject) < this._attackRange;
     }
 }

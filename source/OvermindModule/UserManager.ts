@@ -1,20 +1,25 @@
 import User from './User';
 
+
 export default class UserManager {
-    private users: Set<User> = new Set();
+    static _users: Set<User> = new Set();
     /**
      * registerNewUser
      */
-    public registerNewUser(): User {
+    static registerNewUser(): User {
         const user = new User();
-        this.users.add(user);
+        UserManager._users.add(user);
         return user;
     }
 
     /**
      * removeUser
      */
-    public removeUser(user: User) {
-        this.users.delete(user);
+    static removeUser(user: User) {
+        UserManager._users.delete(user);
+    }
+
+    static get users() {
+        return Array.from(this._users);
     }
 }

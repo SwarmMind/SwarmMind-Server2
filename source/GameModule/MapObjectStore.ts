@@ -2,8 +2,9 @@ import MapObject from './MapObject';
 import NPC from './NPC';
 import Player from './Player';
 
+
 export default class MapObjectStore {
-    private objects: Map<string, MapObject>;
+    private objects: Map<number, MapObject>;
     private _players: Set<Player>;
     private _npcs: Set<NPC>;
 
@@ -29,15 +30,20 @@ export default class MapObjectStore {
         this.addTo(this._npcs, npc);
     }
 
+    private removeFrom(set: Set<MapObject>, mapObject: MapObject) {
+        set.delete(mapObject);
+        this.objects.delete(mapObject.ID);
+    }
+
     public removePlayer(player: Player) {
-        this._players.delete(player);
+        this.removeFrom(this._players, player);
     }
 
     public removeNPC(npc: NPC) {
-        this._npcs.delete(npc);
+        this.removeFrom(this._npcs, npc);
     }
 
-    public remove(ID: string) {
+    public remove(ID: number) {
         const mapObject = this.getByID(ID);
 
         if (mapObject.isPlayer()) {
@@ -47,17 +53,12 @@ export default class MapObjectStore {
         }
     }
 
-    public getByID(ID: string): MapObject {     // returning null if ID not found and not undefined
+    public getByID(ID: number): MapObject {     // returning null if ID not found and not undefined
         return this.objects.get(ID) || null;
     }
 
     private addTo(set: Set<MapObject>, mapObject: MapObject) {
         set.add(mapObject);
         this.objects.set(mapObject.ID, mapObject);
-    }
-
-    private removeFrom(set: Set<MapObject>, mapObject: MapObject) {
-        set.delete(mapObject);
-        this.objects.delete(mapObject.ID);
     }
 }

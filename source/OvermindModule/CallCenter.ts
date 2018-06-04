@@ -2,14 +2,16 @@ import app = require('express');
 import http = require('http');
 import sio = require('socket.io');
 
+import NPC from '../GameModule/NPC';
+import Player from '../GameModule/Player';
 import Command from './../utilities/Command';
 import Connection from './Connection';
 import Overmind from './Overmind';
 import UserManager from './UserManager';
 
+
 export default class CallCenter {
     private overmind: Overmind;
-    private userManager: UserManager;
     private sockets: sio.Socket[];
     private connections: Array<Connection>;
 
@@ -24,23 +26,22 @@ export default class CallCenter {
         io.on('connection', (socket: sio.Socket) => {
             console.log('A client connected');
 
-            const user = this.userManager.registerNewUser();
+            const user = UserManager.registerNewUser();
             const connection = new Connection(socket, user);
-            this.connections.push(connection);
 
-            const initState = this.serializeObject(/*this.overmind.getInitState()*/42); // TODO: correction
+            const initState = this.serializeObject(this.overmind.initState); // TODO: maybe change this later
             socket.emit('initState', initState);
 
             socket.on('command', (unitID, type, direction) => {
                 console.log('New command: Unit #' + unitID + ' has to ' + type + ' in direction ' + direction);
 
-                this.overmind.takeCommand(new Command(unitID, type, direction), user);
+                this.overmind.takeCommand(Command.build(type, unitID, direction), user);
             });
 
             socket.on('disconnect', () => {
                 console.log('A client disconnected');
 
-                this.userManager.removeUser(user);    // Later on we should store inactive users,
+                UserManager.removeUser(user);    // Later on we should store inactive users,
                                                         // so that they have a chance to reconnect
                                                         // and can be shown on the leaderboards as well
                 this.connections.splice(this.connections.indexOf(connection), 1);
@@ -55,10 +56,10 @@ export default class CallCenter {
     /**
      * sends game-state to all clients
      */
-    public sendState(state: any) {
-        const stateAsJSON = this.serializeObject(state);
+    public sendNewRoundInformations(state: { players: Player[], npcs: NPC[] }, commands: Command[]) {
+        const roundInformations = this.serializeObject(Object.assign(state, {commands}));
 
-        this.connectionsDo((connection) => connection.socket.emit('state', stateAsJSON));
+        this.connectionsDo((connection) => connection.socket.emit('state', roundInformations));
     }
 
     public informGameOver() {
@@ -68,9 +69,7 @@ export default class CallCenter {
     }
 
     private connectionsDo(fn: (connection: Connection) => void) {
-        for (const connection of this.connections) {
-            fn(connection);
-        }
+        this.connections.forEach(fn);
     }
 
     private serializeObject(object: any) {

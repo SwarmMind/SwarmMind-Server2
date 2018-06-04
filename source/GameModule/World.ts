@@ -1,16 +1,18 @@
 import FactoryStore from './FactoryStore';
+import MapObject from './MapObject';
 import NPC from './NPC';
 import Player from './Player';
 
+
 export default class World {
-    constructor(private width: number, private height: number) {
+    constructor(private _width: number, private _height: number) {
     }
 
-    public addPlayer(player: Player) {
-
+    public get width() {
+        return this._width;
     }
 
-    public addNPC(npc: NPC) {
-
+    public get height() {
+        return this._height;
     }
 }
