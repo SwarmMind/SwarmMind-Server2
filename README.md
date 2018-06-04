@@ -17,7 +17,7 @@ The format of the state (as `JSON`) looks like the following:
 
 ```json
 {
-    "roundID": 42,
+    "round": 42,
     "players": [
         {
             "ID": 0,
