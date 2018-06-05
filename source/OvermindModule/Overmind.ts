@@ -82,7 +82,7 @@ export default class Overmind {
     private processRound() {
         const oldGameState = this.game.state;
         this.game.newRound(this.generateCommandsToBeExecuted());
-        this.callCenter.sendNewRoundInformations(oldGameState, this.game.lastExecutedCommands);
+        this.callCenter.sendNewRoundInformations(oldGameState);
     }
 
     /**

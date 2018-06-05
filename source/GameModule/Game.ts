@@ -23,17 +23,19 @@ export default class Game {
 
     constructor() {
         this.store = new FactoryStore();
+        this._lastExecutedCommands = [];
     }
 
     public get round() {
         return this._round;
     }
 
-    public get state(): { round: number, players: Player[], npcs: NPC[] } {
+    public get state() {
         return {
             round: this.round,
-            players: this.store.players,
-            npcs: this.store.npcs,
+            players: this.store.players.map((player) => player.serialize()),
+            npcs: this.store.npcs.map((npc) => npc.serialize()),
+            commands: this.lastExecutedCommands.map((command) => command.serialize())
         };
     }
 

@@ -11,6 +11,10 @@ export default class FactoryStore {
 
     private mapObjectCounter: number;
 
+    constructor(){
+        this.mapObjectCounter = 0;
+    }
+
     public get players() {
         return this._mapObjects.players;
     }

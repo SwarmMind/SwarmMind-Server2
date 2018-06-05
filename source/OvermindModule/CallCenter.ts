@@ -57,8 +57,8 @@ export default class CallCenter {
     /**
      * sends game-state to all clients
      */
-    public sendNewRoundInformations(state: { players: Player[], npcs: NPC[] }, commands: Command[]) {
-        const roundInformations = this.serializeObject(Object.assign(state, {commands}));
+    public sendNewRoundInformations(state) {
+        const roundInformations = this.serializeObject(Object.assign(state));
 
         this.connectionsDo((connection) => connection.socket.emit('state', roundInformations));
     }
