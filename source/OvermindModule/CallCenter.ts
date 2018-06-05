@@ -63,6 +63,12 @@ export default class CallCenter {
         this.connectionsDo((connection) => connection.socket.emit('state', roundInformations));
     }
 
+    public sendAccumulatedCommands(playerCommandMap: object) {
+        const playerCommandMapSerialized = this.serializeObject(playerCommandMap);
+        console.log(playerCommandMapSerialized);
+        this.connectionsDo((connection) => connection.socket.emit('accumulatedCommands', playerCommandMapSerialized));
+    }
+
     public informGameOver() {
         this.connectionsDo((connection) => connection.socket.emit('gameOver'));
 
