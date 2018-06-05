@@ -4,6 +4,7 @@ import sio = require('socket.io');
 
 import NPC from '../GameModule/NPC';
 import Player from '../GameModule/Player';
+import CommandBuilder from '../utilities/CommandBuilder';
 import Command from './../utilities/Command';
 import Connection from './Connection';
 import Overmind from './Overmind';
@@ -35,7 +36,7 @@ export default class CallCenter {
             socket.on('command', (unitID, type, direction) => {
                 console.log('New command: Unit #' + unitID + ' has to ' + type + ' in direction ' + direction);
 
-                this.overmind.takeCommand(Command.build(type, unitID, direction), user);
+                this.overmind.takeCommand(CommandBuilder.build(type, unitID, direction), user);
             });
 
             socket.on('disconnect', () => {

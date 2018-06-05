@@ -18,7 +18,12 @@ export default class User {
         this._commands.set(command.mapObjectID, command);
     }
 
-    public get commands(): Map<number, Command> {
-        return this._commands;
+    public commandsForThisRound(round: number): Map<number, Command> {
+        if (round === this.lastCommandRound) {
+            return this._commands;
+        }
+        else {
+            return new Map();
+        }
     }
 }

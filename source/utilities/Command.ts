@@ -1,26 +1,10 @@
 import { Vector } from 'flatten-js';
 import Game from '../GameModule/Game';
-import AttackCommand from './AttackCommand';
-import MoveCommand from './MoveCommand';
 
 export default abstract class Command {
-    static commandTypeList = new Map([
-        ['attack', AttackCommand],
-        ['move', MoveCommand],
-    ]);
-
     private _mapObjectID: number;
     protected _direction: Vector;
     protected _type: string;
-
-
-    static build(type, ...constructorArguments) {
-        return new Command.commandTypeList[type](...constructorArguments);
-    }
-
-    static get types(): string[] {
-        return Array.from(Command.commandTypeList.keys());
-    }
 
     constructor(mapObjectID: number, direction: Vector) {
         this._mapObjectID = mapObjectID;

@@ -7,12 +7,14 @@ export default class MapObject {
 
     protected _movementRange: number;
     protected _attackRange: number;
+    protected _hitpoints;
 
     constructor(private _ID: number, x: number, y: number, representationCreator) {
         this._position = new Point(x, y);
-        this._mapRepresentation = new representationCreator(this._position);
-        this._attackRange = 5;  // TODO adjust the range
+        this._mapRepresentation = representationCreator(this._position);
+        this._attackRange = 1;  // TODO adjust the range
         this._movementRange = 1;
+        this._hitpoints = 1;
     }
 
     public get ID(): number {
@@ -64,6 +66,10 @@ export default class MapObject {
     }
 
     public isInAttackRange(mapObject: MapObject): boolean {
+        return false;
+    }
+
+    public isTarget(mapObject: MapObject) {
         return false;
     }
 }

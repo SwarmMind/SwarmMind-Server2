@@ -9,4 +9,8 @@ export default class Player extends MapObject {
     public isInAttackRange(mapObject: MapObject) {
         return true;
     }
+
+    public isTarget(mapObject: MapObject) {
+        return mapObject.isNPC();
+    }
 }

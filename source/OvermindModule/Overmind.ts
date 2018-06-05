@@ -5,6 +5,9 @@ import User from './User';
 import UserManager from './UserManager';
 
 import { Vector } from 'flatten-js';
+import CommandBuilder from '../utilities/CommandBuilder';
+import AttackCommand from '../utilities/AttackCommand';
+import MoveCommand from '../utilities/MoveCommand';
 
 
 export default class Overmind {
@@ -37,27 +40,41 @@ export default class Overmind {
     private generateCommandsToBeExecuted(): Command[] {        // TODO: should update biases
         const users = UserManager.users;
         const playerIDs = this.game.playerIDs;
-        const commandCount: Map<number, Map<string, number>> = new Map();
-        const directions: Map<number, Vector> = new Map();
+        const playerCommands: Map<number, Command[]> = new Map();   // playerID => Command[]
+        const commands = [];
 
-        for (const playerID of playerIDs) {
-            directions.set(playerID, new Vector(0, 0));
-            commandCount.set(playerID, new Map());
-
-            for (const commandType of Command.types) {
-                commandCount.get(playerID).set(commandType, 0);
-            }
+        for (const ID of playerIDs) {
+            playerCommands.set(ID, []);
         }
 
         for (const user of users) {
-            for (const [playerID, command] of user.commands) {
-                directions.set(playerID, this.addVectors(directions.get(playerID), command.direction));
-                commandCount.get(playerID).set(command.type, commandCount.get(playerID).get(command.type) + 1);
+            for (const [playerID, command] of user.commandsForThisRound(this.game.round)) {
+                playerCommands.get(playerID).push(command)
             }
         }
 
+        // TODO: write more performant code
 
-        return;
+        let attackCommands, moveCommands, direction;
+        for (const [playerID, commands] of playerCommands) {
+            attackCommands = commands.filter(command => command.type === 'attack');
+            moveCommands = commands.filter(command => command.type === 'move');
+
+            if (attackCommands.length >= moveCommands.length) {
+                direction = attackCommands.reduce((accumulator, current) =>
+                    this.addVectors(accumulator, current.direction), new Vector(0, 0));
+
+                commands.push(new AttackCommand(playerID, direction.normalize()));
+            }
+            else {
+                direction = moveCommands.reduce((accumulator, current) =>
+                    this.addVectors(accumulator, current.direction), new Vector(0, 0));
+
+                commands.push(new MoveCommand(playerID, direction.normalize()));
+            }
+        }
+
+        return commands;
     }
 
     private processRound() {

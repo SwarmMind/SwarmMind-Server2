@@ -9,4 +9,8 @@ export default class NPC extends MapObject {
     public isInAttackRange(mapObject: MapObject) {
         return this.distanceTo(mapObject) < this._attackRange;
     }
+
+    public isTarget(mapObject: MapObject) {
+        return mapObject.isPlayer();
+    }
 }
