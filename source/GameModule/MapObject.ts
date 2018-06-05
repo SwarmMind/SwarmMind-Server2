@@ -55,7 +55,7 @@ export default class MapObject {
 
     /**
      *
-     * @param {} direction normalized Vector
+     * @param {} direction
      */
     public moveIn(direction: Vector) {
         this.position = this.position.transform(direction.multiply(this.movementRange));

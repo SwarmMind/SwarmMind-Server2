@@ -12,7 +12,8 @@ import MoveCommand from '../utilities/MoveCommand';
 
 export default class Overmind {
 
-    private intervalID: number;
+    private roundIntervalID: number;
+    private tickIntervalID: number;
     private game: Game;
     private callCenter: CallCenter;
 
@@ -23,7 +24,8 @@ export default class Overmind {
 
     public playGame(width, height) {
         this.game.start(width, height);
-        this.setInterval(4);
+        this.roundIntervalID = this.setInterval(4, this.processRound);
+
     }
 
     /**
@@ -49,7 +51,7 @@ export default class Overmind {
 
         for (const user of users) {
             for (const [playerID, command] of user.commandsForThisRound(this.game.round)) {
-                playerCommands.get(playerID).push(command)
+                playerCommands.get(playerID).push(command);
             }
         }
 
@@ -57,20 +59,20 @@ export default class Overmind {
 
         let attackCommands, moveCommands, direction;
         for (const [playerID, commands] of playerCommands) {
-            attackCommands = commands.filter(command => command.type === 'attack');
-            moveCommands = commands.filter(command => command.type === 'move');
+            attackCommands = commands.filter((command) => command.type === 'attack');
+            moveCommands = commands.filter((command) => command.type === 'move');
 
             if (attackCommands.length >= moveCommands.length) {
                 direction = attackCommands.reduce((accumulator, current) =>
                     this.addVectors(accumulator, current.direction), new Vector(0, 0));
 
-                commands.push(new AttackCommand(playerID, direction.normalize()));
+                commands.push(new AttackCommand(playerID, direction));
             }
             else {
                 direction = moveCommands.reduce((accumulator, current) =>
                     this.addVectors(accumulator, current.direction), new Vector(0, 0));
 
-                commands.push(new MoveCommand(playerID, direction.normalize()));
+                commands.push(new MoveCommand(playerID, direction));
             }
         }
 
@@ -86,8 +88,9 @@ export default class Overmind {
     /**
      * @param {number} duration in seconds
      */
-    private setInterval(duration: number) {         // if the function is not bound it does not know the this context
-        this.intervalID = setInterval(this.processRound.bind(this), duration * 1000);
+    private setInterval(duration: number, fn) {
+        // if the function is not bound it does not know the this context
+        return setInterval(fn.bind(this), duration * 1000);
     }
 
     public get initState() {

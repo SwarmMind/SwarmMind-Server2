@@ -89,12 +89,13 @@ export default class Game {
         if (nearestPlayer !== null) {
             if (npc.isInAttackRange(nearestPlayer)) {
                 return new AttackCommand(npc.ID, nearestPlayer.ID);
-            } else {
-                return new MoveCommand(npc.ID, new Vector(npc.position, nearestPlayer.position).normalize());
+            }
+            else {
+                return new MoveCommand(npc.ID, new Vector(npc.position, nearestPlayer.position));
             }
         }
         else {
-            return new NullCommand()
+            return new NullCommand();
         }
     }
 

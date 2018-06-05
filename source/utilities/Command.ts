@@ -8,7 +8,7 @@ export default abstract class Command {
 
     constructor(mapObjectID: number, direction: Vector) {
         this._mapObjectID = mapObjectID;
-        this._direction = direction.normalize();
+        this._direction = direction;
     }
 
     public get mapObjectID() {
