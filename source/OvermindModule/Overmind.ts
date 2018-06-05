@@ -25,7 +25,7 @@ export default class Overmind {
     public playGame(width, height) {
         this.game.start(width, height);
         this.roundIntervalID = this.setInterval(4, this.processRound);
-
+        this.tickIntervalID = this.setInterval(1, this.sendAccumulatedCommands);
     }
 
     /**
@@ -39,11 +39,28 @@ export default class Overmind {
         return new Vector(vector1.x + vector2.x, vector1.y + vector2.y);
     }
 
-    private generateCommandsToBeExecuted(): Command[] {        // TODO: should update biases
+    private sendAccumulatedCommands() {
         const users = UserManager.users;
+
+        const playerCommands = this.getPlayerCommandMap(users);
+
+        const obj = {};
+        let attackCommands, moveCommands
+        for (const [playerID, commands] of playerCommands) {
+            attackCommands = commands.filter((command) => command.type === 'attack');
+            moveCommands = commands.filter((command) => command.type === 'move');
+            obj[playerID] = {
+                move: moveCommands.map((command) => command.direction),
+                attack: attackCommands.map((command) => command.direction),
+            };
+        }
+
+        this.callCenter.sendAccumulatedCommands(obj);
+    }
+
+    private getPlayerCommandMap(users: Array<User>) {
         const playerIDs = this.game.playerIDs;
         const playerCommands: Map<number, Command[]> = new Map();   // playerID => Command[]
-        const commands = [];
 
         for (const ID of playerIDs) {
             playerCommands.set(ID, []);
@@ -54,6 +71,15 @@ export default class Overmind {
                 playerCommands.get(playerID).push(command);
             }
         }
+
+        return playerCommands;
+    }
+
+    private generateCommandsToBeExecuted(): Command[] {        // TODO: should update biases
+        const users = UserManager.users;
+        const commands = [];
+
+        const playerCommands = this.getPlayerCommandMap(users);
 
         // TODO: write more performant code
 
