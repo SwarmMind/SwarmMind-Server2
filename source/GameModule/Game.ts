@@ -35,7 +35,7 @@ export default class Game {
             round: this.round,
             players: this.store.players.map((player) => player.serialize()),
             npcs: this.store.npcs.map((npc) => npc.serialize()),
-            commands: this.lastExecutedCommands.map((command) => command.serialize())
+            commands: []
         };
     }
 
@@ -87,13 +87,14 @@ export default class Game {
 
     private generateNPCCommandFor(npc: NPC): Command {
         const nearestPlayer = this.findNearestPlayer(npc);
+        console.log(npc, nearestPlayer);
 
         if (nearestPlayer !== null) {
             if (npc.isInAttackRange(nearestPlayer)) {
-                return new AttackCommand(npc.ID, nearestPlayer.ID);
+                return new AttackCommand(npc.ID, (new Vector(npc.position, nearestPlayer.position)).normalize());
             }
             else {
-                return new MoveCommand(npc.ID, new Vector(npc.position, nearestPlayer.position));
+                return new MoveCommand(npc.ID, (new Vector(npc.position, nearestPlayer.position)).normalize());
             }
         }
         else {
@@ -107,20 +108,20 @@ export default class Game {
 
     private spawnNPC() {
         const direction = Math.floor(randomNumber(1, 5));
-        const positionXBorder = Math.random() * (this.world.width - 20) + 10;
-        const positionYBorder = Math.random() * (this.world.height - 20) + 10;
+        const positionXBorder = Math.random() * (this.world.width - 2) + 1;
+        const positionYBorder = Math.random() * (this.world.height - 2) + 1;
 
         if (direction === 1) {
-            this.addNPC(positionXBorder, 10);
+            this.addNPC(positionXBorder, 1);
         }
         if (direction === 3) {
-            this.addNPC(positionXBorder, this.world.height - 10);
+            this.addNPC(positionXBorder, this.world.height - 1);
         }
         if (direction === 2) {
-            this.addNPC(10, positionYBorder);
+            this.addNPC(1, positionYBorder);
         }
         if (direction === 4) {
-            this.addNPC(this.world.width - 10, positionYBorder);
+            this.addNPC(this.world.width - 1, positionYBorder);
         }
     }
 
@@ -137,9 +138,10 @@ export default class Game {
      * @param {Command[]} commands
      */
     public newRound(commands: Command[]) {
+        console.log(commands);
         this._lastExecutedCommands = [];
 
-        this.executeAndStoreCommands(commands);                     // executes player-action
+        this.executeAndStoreCommands(commands);      // executes player-action
         this.executeAndStoreCommands(this.generateNPCCommands());   // executes npc-actions
         this.spawnNPC();
         this._round++;
@@ -163,16 +165,17 @@ export default class Game {
 
     public moveMapObject(mapObjectID: number, direction: Vector) {
         const mapObject = this.store.getObjectByID(mapObjectID);
+        console.log(mapObject, direction);
         mapObject.moveIn(direction);
     }
 
     private findPossibleTarget(position: Point, direction: Vector, isPossibleTarget) {
-        const line = new Line(position, direction);
+        const line = new Line(position, position.translate(direction));
         const possibleTargets = [];
 
         for (const possibleTarget of this.store.mapObjects) {
             if (isPossibleTarget(possibleTarget)) {
-                if (line.intersect(possibleTarget.mapRepresentation).length) {
+                if (line.intersect(possibleTarget.mapRepresentation).length > 0) {
                     possibleTargets.push(possibleTarget);
                 }
             }
@@ -184,6 +187,7 @@ export default class Game {
     public attackInDirection(mapObjectID: number, direction: Vector) {
         const mapObject = this.store.getObjectByID(mapObjectID);
         const possibleTargets = this.findPossibleTarget(mapObject.position, direction, mapObject.isTarget.bind(mapObject));
+        console.log('zou can attack: ', possibleTargets);
         const target = this.findNearestMapObject(mapObject, possibleTargets);
 
         if (target !== null) {
@@ -193,5 +197,9 @@ export default class Game {
 
     public get playerIDs() {
         return this.store.players.map((player) => player.ID);
+    }
+
+    public isOver(){
+        return this.store.players.length === 0;
     }
 }

@@ -32,7 +32,7 @@ export default class Overmind {
      * takeCommand
      */
     public takeCommand(command: Command, user: User) {
-        user.takeCommand(command, this.game.round);
+        user.takeCommand(command);
     }
 
     private addVectors(vector1: Vector, vector2: Vector): Vector {
@@ -67,7 +67,7 @@ export default class Overmind {
         }
 
         for (const user of users) {
-            for (const [playerID, command] of user.commandsForThisRound(this.game.round)) {
+            for (const [playerID, command] of user.commands) {
                 playerCommands.get(playerID).push(command);
             }
         }
@@ -77,7 +77,7 @@ export default class Overmind {
 
     private generateCommandsToBeExecuted(): Command[] {        // TODO: should update biases
         const users = UserManager.users;
-        const commands = [];
+        const generatedCommands = [];
 
         const playerCommands = this.getPlayerCommandMap(users);
 
@@ -85,30 +85,40 @@ export default class Overmind {
 
         let attackCommands, moveCommands, direction;
         for (const [playerID, commands] of playerCommands) {
-            attackCommands = commands.filter((command) => command.type === 'attack');
-            moveCommands = commands.filter((command) => command.type === 'move');
+            if(commands.length > 0){
+                attackCommands = commands.filter((command) => command.type === 'attack');
+                moveCommands = commands.filter((command) => command.type === 'move');
+                
+                if (attackCommands.length >= moveCommands.length) {
+                    direction = attackCommands.reduce((accumulator, current) =>
+                        this.addVectors(accumulator, current.direction), new Vector(0, 0));
 
-            if (attackCommands.length >= moveCommands.length) {
-                direction = attackCommands.reduce((accumulator, current) =>
-                    this.addVectors(accumulator, current.direction), new Vector(0, 0));
+                    generatedCommands.push(new AttackCommand(playerID, direction));
+                }
+                else {
+                    direction = moveCommands.reduce((accumulator, current) =>
+                        this.addVectors(accumulator, current.direction), new Vector(0, 0));
 
-                commands.push(new AttackCommand(playerID, direction));
-            }
-            else {
-                direction = moveCommands.reduce((accumulator, current) =>
-                    this.addVectors(accumulator, current.direction), new Vector(0, 0));
-
-                commands.push(new MoveCommand(playerID, direction));
-            }
+                    generatedCommands.push(new MoveCommand(playerID, direction));
+                }
+            }            
         }
-
-        return commands;
+        console.log(generatedCommands)
+        return generatedCommands;
     }
 
     private processRound() {
         const oldGameState = this.game.state;
         this.game.newRound(this.generateCommandsToBeExecuted());
+        oldGameState.commands = this.game.lastExecutedCommands.map((command) => command.serialize());
         this.callCenter.sendNewRoundInformations(oldGameState);
+        UserManager.clearAllUserCommands();
+
+        if(this.game.isOver()){
+            this.callCenter.informGameOver();
+            clearInterval(this.roundIntervalID);
+            clearInterval(this.tickIntervalID);
+        }
     }
 
     /**

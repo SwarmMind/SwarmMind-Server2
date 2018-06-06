@@ -9,6 +9,8 @@ export default abstract class Command {
     constructor(mapObjectID: number, direction: Vector) {
         this._mapObjectID = mapObjectID;
         this._direction = direction;
+
+        this._type = 'abstractCommand';
     }
 
     public get mapObjectID() {
@@ -32,7 +34,7 @@ export default abstract class Command {
     }
 
     public serialize() {
-        return {mapObjectID: this.mapObjectID, type: this.type};
+        return {ID: this.mapObjectID, type: this.type};
     }
 
     public execute(game: Game) {

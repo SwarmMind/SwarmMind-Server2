@@ -29,14 +29,15 @@ export default class CallCenter {
 
             const user = UserManager.registerNewUser();
             const connection = new Connection(socket, user);
+            this.connections.push(connection);
 
             const initState = this.serializeObject(this.overmind.initState); // TODO: maybe change this later
             socket.emit('initState', initState);
 
             socket.on('command', (unitID, type, direction) => {
                 console.log('New command: Unit #' + unitID + ' has to ' + type + ' in direction ' + direction);
-
-                this.overmind.takeCommand(CommandBuilder.build(type, unitID, direction), user);
+                
+                this.overmind.takeCommand(CommandBuilder.build(type, parseInt(unitID), JSON.parse(direction)), user);
             });
 
             socket.on('disconnect', () => {
@@ -58,7 +59,7 @@ export default class CallCenter {
      * sends game-state to all clients
      */
     public sendNewRoundInformations(state) {
-        const roundInformations = this.serializeObject(Object.assign(state));
+        const roundInformations = this.serializeObject(state);
 
         this.connectionsDo((connection) => connection.socket.emit('state', roundInformations));
     }

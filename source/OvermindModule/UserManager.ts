@@ -22,4 +22,10 @@ export default class UserManager {
     static get users() {
         return Array.from(this._users);
     }
+
+    static clearAllUserCommands() {
+        for(const user of this._users) {
+            user.clearCommands();
+        }
+    }
 }

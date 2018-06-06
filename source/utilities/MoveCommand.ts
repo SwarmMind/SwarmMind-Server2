@@ -3,8 +3,6 @@ import Game from '../GameModule/Game';
 import Command from './Command';
 
 export default class MoveCommand extends Command {
-
-
     constructor(mapObjectID: number, direction: Vector) {
         super(mapObjectID, direction);
 

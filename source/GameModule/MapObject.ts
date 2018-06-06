@@ -34,7 +34,8 @@ export default class MapObject {
     }
 
     public get mapRepresentation() {
-        return this._mapRepresentation;
+        //return this._mapRepresentation;
+        return new Circle(this._position, 0.5);
     }
 
     public set mapRepresentation(value: Circle) {
@@ -42,7 +43,8 @@ export default class MapObject {
     }
 
     public set position(value: Point) {     // implicitly changes the position of the MapRepresentation too
-        this._position = value;
+        this._position.x = value.x;
+        this._position.y = value.y;
     }
 
     public get position(): Point {
@@ -58,11 +60,11 @@ export default class MapObject {
      * @param {} direction
      */
     public moveIn(direction: Vector) {
-        this.position = this.position.transform(direction.multiply(this.movementRange));
+        this.position = this.position.translate(direction.multiply(this.movementRange));
     }
 
-    public distanceTo(mapObject: MapObject): number {
-        return this.position.distanceTo(mapObject.position);
+    public distanceTo(mapObject: MapObject): number {   // distanceTo returns an Array
+        return this.position.distanceTo(mapObject.position)[0];
     }
 
     public isInAttackRange(mapObject: MapObject): boolean {

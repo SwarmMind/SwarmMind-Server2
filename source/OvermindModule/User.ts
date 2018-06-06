@@ -8,22 +8,18 @@ export default class User {
 
     constructor() {
         this._weight = 1;
+        this.clearCommands();
     }
 
-    public takeCommand(command: Command, round) {
-        if (!(round === this.lastCommandRound)) {
-            this._commands = new Map();
-        }
-
+    public takeCommand(command: Command) {
         this._commands.set(command.mapObjectID, command);
     }
 
-    public commandsForThisRound(round: number): Map<number, Command> {
-        if (round === this.lastCommandRound) {
-            return this._commands;
-        }
-        else {
-            return new Map();
-        }
+    public get commands(): Map<number, Command> {
+        return this._commands;
+    }
+
+    public clearCommands() {
+        this._commands = new Map();
     }
 }
