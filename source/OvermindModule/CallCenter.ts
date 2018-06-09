@@ -2,10 +2,7 @@ import app = require('express');
 import http = require('http');
 import sio = require('socket.io');
 
-import NPC from '../GameModule/NPC';
-import Player from '../GameModule/Player';
 import CommandBuilder from '../utilities/CommandBuilder';
-import Command from './../utilities/Command';
 import Connection from './Connection';
 import Overmind from './Overmind';
 import UserManager from './UserManager';

@@ -9,6 +9,7 @@ import Command from '../utilities/Command';
 import MoveCommand from '../utilities/MoveCommand';
 import MapObject from './MapObject';
 import NullCommand from '../utilities/NullCommand';
+import DieCommand from '../utilities/DieCommand';
 
 function randomNumber(min, max) {
     return Math.random() * (max - min) + min;
@@ -128,7 +129,10 @@ export default class Game {
     private executeAndStoreCommands(commands: Command[]) {
         for (const command of commands) {
             command.execute(this);
-            this._lastExecutedCommands.push(command);
+
+            for(const partCommand of command){
+                this._lastExecutedCommands.push(partCommand);
+            }
         }
     }
 
@@ -164,7 +168,7 @@ export default class Game {
     }
 
     public moveMapObject(mapObjectID: number, direction: Vector) {
-        const mapObject = this.store.getObjectByID(mapObjectID);
+        const mapObject = this.resolveID(mapObjectID);
         console.log(mapObject, direction);
         mapObject.moveIn(direction);
     }
@@ -184,15 +188,24 @@ export default class Game {
         return possibleTargets;
     }
 
+    public resolveID(mapObjectID: number){
+        return this.store.getObjectByID(mapObjectID);
+    }
+
     public attackInDirection(mapObjectID: number, direction: Vector) {
-        const mapObject = this.store.getObjectByID(mapObjectID);
+        const mapObject = this.resolveID(mapObjectID);
         const possibleTargets = this.findPossibleTarget(mapObject.position, direction, mapObject.isTarget.bind(mapObject));
-        console.log('zou can attack: ', possibleTargets);
+        console.log('you can attack: ', possibleTargets);
         const target = this.findNearestMapObject(mapObject, possibleTargets);
 
-        if (target !== null) {
-            this.removeMapObject(target);
+        if(target !== null){
+            return new DieCommand(target.ID);
         }
+    }
+
+    public killMapObject(mapObjectID: number){
+        const mapObject = this.resolveID(mapObjectID);
+        this.removeMapObject(mapObject);
     }
 
     public get playerIDs() {

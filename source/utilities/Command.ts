@@ -1,14 +1,14 @@
-import { Vector } from 'flatten-js';
 import Game from '../GameModule/Game';
 
 export default abstract class Command {
     private _mapObjectID: number;
-    protected _direction: Vector;
+    private implication: Command;
     protected _type: string;
 
-    constructor(mapObjectID: number, direction: Vector) {
+    constructor(mapObjectID: number) {
         this._mapObjectID = mapObjectID;
-        this._direction = direction;
+
+        this.implication  = null;
 
         this._type = 'abstractCommand';
     }
@@ -21,27 +21,30 @@ export default abstract class Command {
         return this._type;
     }
 
-    protected equalsFunctionGenerator(propertyList: string[]) {
-        return function(otherCommand: Command): boolean {
-            for (const key in ['mapObjectID', 'type', 'direction'].concat(propertyList)) {
-                if (otherCommand[key] !== this[key]) {
-                    return false;
-                }
-            }
-
-            return true;
-        };
-    }
-
     public serialize() {
         return {ID: this.mapObjectID, type: this.type};
     }
 
-    public execute(game: Game) {
+    public implicate(implication: Command){
+        this.implication = implication;
     }
 
+    protected executionFunction(game: Game): void | Command {}
 
-    public get direction() {
-        return this._direction;
+
+    public execute(game: Game) {
+        const implication = this.executionFunction(game);
+
+        if(implication){
+            this.implication = implication;
+            this.implication.execute(game);
+        }
+    }
+
+    *[Symbol.iterator](){
+        yield this;
+        if(this.implication !== null){
+            yield* this.implication;
+        }
     }
 }

@@ -5,7 +5,6 @@ import User from './User';
 import UserManager from './UserManager';
 
 import { Vector } from 'flatten-js';
-import CommandBuilder from '../utilities/CommandBuilder';
 import AttackCommand from '../utilities/AttackCommand';
 import MoveCommand from '../utilities/MoveCommand';
 

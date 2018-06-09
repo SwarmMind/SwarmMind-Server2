@@ -3,7 +3,6 @@ import Command from '../utilities/Command';
 
 export default class User {
     private _commands: Map<number, Command>;
-    private lastCommandRound: number;
     private _weight: number;
 
     constructor() {
