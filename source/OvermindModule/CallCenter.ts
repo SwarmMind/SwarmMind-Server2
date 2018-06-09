@@ -33,8 +33,8 @@ export default class CallCenter {
 
             socket.on('command', (unitID, type, direction) => {
                 console.log('New command: Unit #' + unitID + ' has to ' + type + ' in direction ' + direction);
-                
-                this.overmind.takeCommand(CommandBuilder.build(type, parseInt(unitID), JSON.parse(direction)), user);
+
+                user.takeCommand(CommandBuilder.build(type, parseInt(unitID), JSON.parse(direction)));
             });
 
             socket.on('disconnect', () => {

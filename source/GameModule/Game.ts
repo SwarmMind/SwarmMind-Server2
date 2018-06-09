@@ -10,6 +10,7 @@ import MoveCommand from '../utilities/MoveCommand';
 import MapObject from './MapObject';
 import NullCommand from '../utilities/NullCommand';
 import DieCommand from '../utilities/DieCommand';
+import DamageCommand from '../utilities/DamageCommand';
 
 function randomNumber(min, max) {
     return Math.random() * (max - min) + min;
@@ -193,13 +194,12 @@ export default class Game {
     }
 
     public attackInDirection(mapObjectID: number, direction: Vector) {
-        const mapObject = this.resolveID(mapObjectID);
-        const possibleTargets = this.findPossibleTarget(mapObject.position, direction, mapObject.isTarget.bind(mapObject));
-        console.log('you can attack: ', possibleTargets);
-        const target = this.findNearestMapObject(mapObject, possibleTargets);
+        const attacker = this.resolveID(mapObjectID);
+        const possibleTargets = this.findPossibleTarget(attacker.position, direction, attacker.isTarget.bind(attacker));
+        const target = this.findNearestMapObject(attacker, possibleTargets);
 
         if(target !== null){
-            return new DieCommand(target.ID);
+            return new DamageCommand(attacker, target);
         }
     }
 

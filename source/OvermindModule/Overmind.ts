@@ -27,13 +27,6 @@ export default class Overmind {
         this.tickIntervalID = this.setInterval(1, this.sendAccumulatedCommands);
     }
 
-    /**
-     * takeCommand
-     */
-    public takeCommand(command: Command, user: User) {
-        user.takeCommand(command);
-    }
-
     private addVectors(vector1: Vector, vector2: Vector): Vector {
         return new Vector(vector1.x + vector2.x, vector1.y + vector2.y);
     }
@@ -74,6 +67,11 @@ export default class Overmind {
         return playerCommands;
     }
 
+    private accumulateVectors(vectors: Vector[]){
+        return vectors.reduce((accumulator, current) =>
+            this.addVectors(accumulator, current.direction), new Vector(0, 0))
+    }
+
     private generateCommandsToBeExecuted(): Command[] {        // TODO: should update biases
         const users = UserManager.users;
         const generatedCommands = [];
@@ -89,15 +87,11 @@ export default class Overmind {
                 moveCommands = commands.filter((command) => command.type === 'move');
                 
                 if (attackCommands.length >= moveCommands.length) {
-                    direction = attackCommands.reduce((accumulator, current) =>
-                        this.addVectors(accumulator, current.direction), new Vector(0, 0));
-
+                    direction = this.accumulateVectors(attackCommands);
                     generatedCommands.push(new AttackCommand(playerID, direction));
                 }
                 else {
-                    direction = moveCommands.reduce((accumulator, current) =>
-                        this.addVectors(accumulator, current.direction), new Vector(0, 0));
-
+                    direction = this.accumulateVectors(moveCommands);
                     generatedCommands.push(new MoveCommand(playerID, direction));
                 }
             }            
