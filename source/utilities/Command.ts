@@ -31,6 +31,7 @@ export default abstract class Command {
 
     protected executionFunction(game: Game): void | Command {}
 
+    public calculateDifference(command: Command): number { return 0 }
 
     public execute(game: Game) {
         const implication = this.executionFunction(game);
@@ -40,6 +41,8 @@ export default abstract class Command {
             this.implication.execute(game);
         }
     }
+
+    public applyWeight(weight: number) {}
 
     *[Symbol.iterator](){
         yield this;

@@ -11,7 +11,16 @@ export default class User {
     }
 
     public takeCommand(command: Command) {
-        this._commands.set(command.mapObjectID, command);
+        this._commands.set(command.mapObjectID, this.weightCommand(command));
+    }
+
+    private weightCommand(command: Command) {
+        command.applyWeight(this._weight);
+        return command;
+    }
+
+    public changeWeightBy(number: number) {
+        this._weight = Math.max(0, this._weight - number);
     }
 
     public get commands(): Map<number, Command> {

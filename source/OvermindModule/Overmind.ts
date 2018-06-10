@@ -50,7 +50,7 @@ export default class Overmind {
         this.callCenter.sendAccumulatedCommands(obj);
     }
 
-    private getPlayerCommandMap(users: Array<User>) {
+    private getPlayerCommandMap(users: User[]) {
         const playerIDs = this.game.playerIDs;
         const playerCommands: Map<number, Command[]> = new Map();   // playerID => Command[]
 
@@ -72,6 +72,13 @@ export default class Overmind {
             this.addVectors(accumulator, current.direction), new Vector(0, 0))
     }
 
+    private changeUserWeighting(user: User, playerID: number, command: Command) {
+        if(command === null){
+            const userCommand = user.commands.get(playerID);
+            user.changeWeightBy(userCommand.calculateDifference(command));
+        }        
+    }
+
     private generateCommandsToBeExecuted(): Command[] {        // TODO: should update biases
         const users = UserManager.users;
         const generatedCommands = [];
@@ -80,21 +87,28 @@ export default class Overmind {
 
         // TODO: write more performant code
 
-        let attackCommands, moveCommands, direction;
+        let attackCommands, moveCommands, direction, generatedCommand;
         for (const [playerID, commands] of playerCommands) {
+            generatedCommand = null;
             if(commands.length > 0){
                 attackCommands = commands.filter((command) => command.type === 'attack');
                 moveCommands = commands.filter((command) => command.type === 'move');
                 
                 if (attackCommands.length >= moveCommands.length) {
                     direction = this.accumulateVectors(attackCommands);
-                    generatedCommands.push(new AttackCommand(playerID, direction));
+                    generatedCommand = new AttackCommand(playerID, direction);
                 }
                 else {
                     direction = this.accumulateVectors(moveCommands);
-                    generatedCommands.push(new MoveCommand(playerID, direction));
+                    generatedCommand = new MoveCommand(playerID, direction);
                 }
-            }            
+            }
+            
+            for(const user of users) {
+                this.changeUserWeighting(user, playerID, generatedCommand);
+            }
+
+            generatedCommands.push(generatedCommand);
         }
         console.log(generatedCommands)
         return generatedCommands;

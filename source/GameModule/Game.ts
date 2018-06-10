@@ -65,7 +65,7 @@ export default class Game {
         this.start(width, height);
     }
 
-    private findNearestMapObject(startingPoint: MapObject, possibilities: MapObject[]) {
+    private findNearestMapObject(startingPoint: MapObject, possibilities: MapObject[]): MapObject {
         let nearestMapObject = null;
         let distanceToNearestMapObject = Infinity;
         let distance;
@@ -83,7 +83,7 @@ export default class Game {
     }
 
     private findNearestPlayer(npc: NPC): Player {
-        return this.findNearestMapObject(npc, this.store.players);
+        return this.findNearestMapObject(npc, this.store.players) as Player;
     }
 
     private generateNPCCommandFor(npc: NPC): Command {

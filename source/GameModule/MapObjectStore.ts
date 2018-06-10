@@ -51,13 +51,13 @@ export default class MapObjectStore {
         const mapObject = this.getByID(ID);
 
         if (mapObject.isPlayer()) {
-            this.removePlayer(mapObject);
+            this.removePlayer(mapObject as Player);
         } else {
-            this.removeNPC(mapObject);
+            this.removeNPC(mapObject as NPC);
         }
     }
 
-    public getByID(ID: number): MapObject {     // returning null if ID not found and not undefined
+    public getByID(ID: number): MapObject {     // returns null if ID not found and not undefined
         return this.objects.get(ID) || null;
     }
 
