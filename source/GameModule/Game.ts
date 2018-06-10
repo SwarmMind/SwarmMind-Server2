@@ -59,8 +59,8 @@ export default class Game {
     }
 
     public restart() {
-        this.start(this.world.width, this.world.height);
         this.store.flush();
+        this.start(this.world.width, this.world.height);        
     }
 
     private findNearestMapObject(startingPoint: MapObject, possibilities: MapObject[]): MapObject {
