@@ -7,6 +7,7 @@ import UserManager from './UserManager';
 import { Vector } from 'flatten-js';
 import AttackCommand from '../utilities/AttackCommand';
 import MoveCommand from '../utilities/MoveCommand';
+import { ENGINE_METHOD_DIGESTS } from 'constants';
 
 
 export default class Overmind {
@@ -135,6 +136,7 @@ export default class Overmind {
             this.callCenter.informGameOver();
             clearInterval(this.roundIntervalID);
             clearInterval(this.tickIntervalID);
+            this.restart();
         }
     }
 
