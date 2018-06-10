@@ -151,11 +151,11 @@ export default class Game {
     }
 
     public addPlayer(x, y) {
-        this.store.createPlayer(x, y, (x, y) => new Circle(new Point(x, y), 0.5));
+        this.store.createPlayer(x, y, (point) => new Circle(point, 0.5));
     }
 
     public addNPC(x, y) {
-        this.store.createNPC(x, y, (x, y) => new Circle(new Point(x, y), 0.5));
+        this.store.createNPC(x, y, (point) => new Circle(point, 0.5));
     }
 
     public removeMapObject(mapObject: MapObject) {
