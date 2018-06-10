@@ -23,8 +23,17 @@ export default class Overmind {
 
     public playGame(width, height) {
         this.game.start(width, height);
+        this.initializeIntervals();
+    }
+
+    public initializeIntervals() {
         this.roundIntervalID = this.setInterval(4, this.processRound);
         this.tickIntervalID = this.setInterval(1, this.sendAccumulatedCommands);
+    }
+
+    public restart() {
+        this.game.restart();
+        this.initializeIntervals();
     }
 
     private addVectors(vector1: Vector, vector2: Vector): Vector {
@@ -90,6 +99,7 @@ export default class Overmind {
         let attackCommands, moveCommands, direction, generatedCommand;
         for (const [playerID, commands] of playerCommands) {
             generatedCommand = null;
+            
             if(commands.length > 0){
                 attackCommands = commands.filter((command) => command.type === 'attack');
                 moveCommands = commands.filter((command) => command.type === 'move');
@@ -102,13 +112,13 @@ export default class Overmind {
                     direction = this.accumulateVectors(moveCommands);
                     generatedCommand = new MoveCommand(playerID, direction);
                 }
-            }
-            
-            for(const user of users) {
-                this.changeUserWeighting(user, playerID, generatedCommand);
-            }
 
-            generatedCommands.push(generatedCommand);
+                for(const user of users) {
+                    this.changeUserWeighting(user, playerID, generatedCommand);
+                }
+    
+                generatedCommands.push(generatedCommand);
+            }            
         }
         console.log(generatedCommands)
         return generatedCommands;

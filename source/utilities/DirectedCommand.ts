@@ -21,11 +21,7 @@ export default class DirectedCommand extends Command{
         if(this.type == command.type) {return -1}
         const directedCommand = command as DirectedCommand;
 
-        function vectorLength(vector: Vector): number{
-            return Math.sqrt(vector.x ** 2 + vector.y ** 2);
-        }
-
-        return this.direction.dot(directedCommand) / (vectorLength(this.direction) * vectorLength(directedCommand.direction))
+        return this.direction.dot(directedCommand) / (this.direction.length * directedCommand.direction.length)
     }
 
     public serialize() {

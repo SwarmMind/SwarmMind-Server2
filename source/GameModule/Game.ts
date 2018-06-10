@@ -58,11 +58,9 @@ export default class Game {
         this.addPlayer(10, 11);
     }
 
-    /**
-     * for semantics
-     */
-    public restart(width, height) {
-        this.start(width, height);
+    public restart() {
+        this.start(this.world.width, this.world.height);
+        this.store.flush();
     }
 
     private findNearestMapObject(startingPoint: MapObject, possibilities: MapObject[]): MapObject {

@@ -7,12 +7,12 @@ import { Circle } from 'flatten-js';
 
 
 export default class FactoryStore {
-    private _mapObjects: MapObjectStore = new MapObjectStore();
-
+    private _mapObjects: MapObjectStore;
     private mapObjectCounter: number;
 
     constructor(){
         this.mapObjectCounter = 0;
+        this._mapObjects = new MapObjectStore();
     }
 
     public get players() {
@@ -25,6 +25,11 @@ export default class FactoryStore {
 
     public get mapObjects() {
         return this._mapObjects.mapObjects;
+    }
+
+    public flush() {
+        this.mapObjectCounter = 0;
+        this._mapObjects = new MapObjectStore();
     }
 
     /**
