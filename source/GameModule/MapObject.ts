@@ -1,9 +1,7 @@
-import { Circle, Point, Vector } from 'flatten-js';
-import DieCommand from '../utilities/DieCommand';
+import { Point, Vector } from 'flatten-js';
 
 
-export default class MapObject {
-    private _mapRepresentationCreator: Circle;
+export default abstract class MapObject {
     private _position: Point;
 
     protected _movementRange: number;
@@ -11,13 +9,20 @@ export default class MapObject {
     protected _attackRange: number;
     protected _hitpoints: number;
 
-    constructor(private _ID: number, x: number, y: number, representationCreator) {
+    constructor(private _ID: number, x: number, y: number, private _mapRepresentationCreator) {
         this._position = new Point(x, y);
-        this._mapRepresentationCreator = representationCreator;
-        this._attackRange = 1;  // TODO adjust the range
-        this._movementRange = 1;
-        this._hitpoints = 1;
-        this._attackStrength = 0;
+
+        this.importStats(this.statsObject);
+    }
+
+    protected get statsObject(){
+        return {};
+    }
+
+    private importStats(statsObject){
+        for(const key in statsObject){
+            this[`_${key}`] = statsObject[key];
+        }
     }
 
     public get ID(): number {
@@ -53,10 +58,6 @@ export default class MapObject {
         return this._movementRange;
     }
 
-    /**
-     *
-     * @param {} direction
-     */
     public moveIn(direction: Vector) {
         this.position = this.position.translate(direction.multiply(this.movementRange));
     }

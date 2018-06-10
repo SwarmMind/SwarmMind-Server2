@@ -1,7 +1,12 @@
 import MapObject from './MapObject';
+import { playerData } from '../utilities/MapObjectData';
 
 
 export default class Player extends MapObject {
+    protected get statsObject(){
+        return playerData;
+    }
+
     public isPlayer() {
         return true;
     }

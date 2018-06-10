@@ -1,7 +1,12 @@
 import MapObject from './MapObject';
+import { npcData } from '../utilities/MapObjectData'
 
 
 export default class NPC extends MapObject {
+    protected get statsObject(){
+        return npcData;
+    }
+
     public isNPC() {
         return true;
     }

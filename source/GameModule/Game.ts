@@ -9,7 +9,6 @@ import Command from '../utilities/Command';
 import MoveCommand from '../utilities/MoveCommand';
 import MapObject from './MapObject';
 import NullCommand from '../utilities/NullCommand';
-import DieCommand from '../utilities/DieCommand';
 import DamageCommand from '../utilities/DamageCommand';
 
 function randomNumber(min, max) {
@@ -67,7 +66,7 @@ export default class Game {
     }
 
     private findNearestMapObject(startingPoint: MapObject, possibilities: MapObject[]) {
-        let nearestMapObject: MapObject = null;
+        let nearestMapObject = null;
         let distanceToNearestMapObject = Infinity;
         let distance;
 
@@ -89,14 +88,15 @@ export default class Game {
 
     private generateNPCCommandFor(npc: NPC): Command {
         const nearestPlayer = this.findNearestPlayer(npc);
-        console.log(npc, nearestPlayer);
+        let direction: Vector;
 
         if (nearestPlayer !== null) {
+            direction = (new Vector(npc.position, nearestPlayer.position)).normalize();
             if (npc.isInAttackRange(nearestPlayer)) {
-                return new AttackCommand(npc.ID, (new Vector(npc.position, nearestPlayer.position)).normalize());
+                return new AttackCommand(npc.ID, direction);
             }
             else {
-                return new MoveCommand(npc.ID, (new Vector(npc.position, nearestPlayer.position)).normalize());
+                return new MoveCommand(npc.ID, direction);
             }
         }
         else {
