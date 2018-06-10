@@ -35,7 +35,7 @@ export default class FactoryStore {
     /**
      * getObjectByID
      */
-    public getObjectByID(ID: number): MapObject {
+    public getObjectByID(ID: number): MapObject | null {
         return this._mapObjects.getByID(ID);
     }
 

@@ -1,8 +1,8 @@
 export const npcData = {
     movementRange: 1,
     attackStrength: 1,
-    attackRange: 1,
-    hitpoints: 3
+    attackRange: 1.3,
+    hitpoints: 2
 };
 
 export const playerData = {
@@ -11,5 +11,3 @@ export const playerData = {
     attackRange: Infinity,
     hitpoints: 1
 };
-
-

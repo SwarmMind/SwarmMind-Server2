@@ -60,6 +60,7 @@ export default class Game {
 
     public restart() {
         this.store.flush();
+        this._lastExecutedCommands = [];
         this.start(this.world.width, this.world.height);        
     }
 
@@ -212,5 +213,9 @@ export default class Game {
 
     public isOver(){
         return this.store.players.length === 0;
+    }
+
+    public isValidCommand(command: Command) {
+        return this.store.getObjectByID(command.mapObjectID) !== null;
     }
 }

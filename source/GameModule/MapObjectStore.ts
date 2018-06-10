@@ -57,7 +57,7 @@ export default class MapObjectStore {
         }
     }
 
-    public getByID(ID: number): MapObject {     // returns null if ID not found and not undefined
+    public getByID(ID: number): MapObject | null {     // returns null if ID not found and not undefined
         return this.objects.get(ID) || null;
     }
 

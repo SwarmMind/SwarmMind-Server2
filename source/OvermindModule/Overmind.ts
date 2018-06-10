@@ -7,7 +7,6 @@ import UserManager from './UserManager';
 import { Vector } from 'flatten-js';
 import AttackCommand from '../utilities/AttackCommand';
 import MoveCommand from '../utilities/MoveCommand';
-import { ENGINE_METHOD_DIGESTS } from 'constants';
 
 
 export default class Overmind {
@@ -137,6 +136,12 @@ export default class Overmind {
             clearInterval(this.roundIntervalID);
             clearInterval(this.tickIntervalID);
             this.restart();
+        }
+    }
+
+    public takeCommand(command: Command, user: User){
+        if(this.game.isValidCommand(command)){
+            user.takeCommand(command);
         }
     }
 
