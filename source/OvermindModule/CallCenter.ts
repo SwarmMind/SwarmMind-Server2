@@ -10,6 +10,7 @@ import UserManager from './UserManager';
 
 export default class CallCenter {
     private overmind: Overmind;
+    // For what do we need the sockets array? WebStorm says it's never queried.
     private sockets: sio.Socket[];
     private connections: Array<Connection>;
 

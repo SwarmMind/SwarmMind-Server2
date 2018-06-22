@@ -3,13 +3,16 @@ import NPC from './NPC';
 import Player from './Player';
 import World from './World';
 
-import { Circle, Line, Point, Vector } from 'flatten-js';
+import { Box, Circle, Line, Point, Vector } from 'flatten-js';
+import BoxExtension from '../utilities/GeometryExtensions/BoxExtension';
+import Rectangle from '../utilities/GeometryExtensions/Rectangle';
+
 import AttackCommand from '../utilities/AttackCommand';
 import Command from '../utilities/Command';
-import MoveCommand from '../utilities/MoveCommand';
-import MapObject from './MapObject';
-import NullCommand from '../utilities/NullCommand';
 import DamageCommand from '../utilities/DamageCommand';
+import MoveCommand from '../utilities/MoveCommand';
+import NullCommand from '../utilities/NullCommand';
+import MapObject from './MapObject';
 
 function randomNumber(min, max) {
     return Math.random() * (max - min) + min;
@@ -36,7 +39,7 @@ export default class Game {
             round: this.round,
             players: this.store.players.map((player) => player.serialize()),
             npcs: this.store.npcs.map((npc) => npc.serialize()),
-            commands: []
+            commands: [],
         };
     }
 
@@ -61,9 +64,10 @@ export default class Game {
     public restart() {
         this.store.flush();
         this._lastExecutedCommands = [];
-        this.start(this.world.width, this.world.height);        
+        this.start(this.world.width, this.world.height);
     }
 
+    // TODO: Maybe outsource this to Player class?
     private findNearestMapObject(startingPoint: MapObject, possibilities: MapObject[]): MapObject {
         let nearestMapObject = null;
         let distanceToNearestMapObject = Infinity;
@@ -127,10 +131,11 @@ export default class Game {
     }
 
     private executeAndStoreCommands(commands: Command[]) {
+        // TODO: Maybe we should first execute the movement commands and then the shooting commands?
         for (const command of commands) {
             command.execute(this);
 
-            for(const partCommand of command){
+            for(const partCommand of command) {
                 this._lastExecutedCommands.push(partCommand);
             }
         }
@@ -170,7 +175,149 @@ export default class Game {
     public moveMapObject(mapObjectID: number, direction: Vector) {
         const mapObject = this.resolveID(mapObjectID);
         console.log(mapObject, direction);
+
+        // TODO: We could make this much more efficient if we use a kd-tree or something,
+        // TODO: so that we do not need to check all objects.
+        // calculate possible collisions and edit direction vector
+        const collidableObjects = this.store.mapObjects;
+        for (obstacle of collidableObjects) {
+            if (obstacle === mapObject) { continue; }
+            direction = this.avoidCollision(mapObject, direction, obstacle);
+        }
+
         mapObject.moveIn(direction);
+    }
+
+    // TODO: Works only for circles
+    /*private correctMovementVector(object: MapObject, direction: Vector, obstacles: MapObject[]) {
+        const objectOrigin = new Vector(new Point(0, 0), object.mapRepresentation.position);
+
+        // Create bb of movement
+        let vector90Degrees = direction.rotate90CW();
+        vector90Degrees = vector90Degrees.normalize();
+        vector90Degrees = vector90Degrees.multiply(object.mapRepresentation.r);
+        let pointVector = objectOrigin.add(vector90Degrees);
+        const point1 = new Point(pointVector.x, pointVector.y);
+
+        pointVector = pointVector.add(direction);
+        const point2 = new Point(pointVector.x, pointVector.y);
+
+        let vector90Degrees = vector90Degrees.rotate90CW();
+        vector90Degrees = vector90Degrees.rotate90CW();
+        pointVector = objectOrigin.add(vector90Degrees);
+        const point3 = new Point(pointVector.x, pointVector.y);
+
+        pointVector = pointVector.add(direction);
+        const point4 = new Point(pointVector.x, pointVector.y);
+
+        const movementBB = new Box(
+            Math.min(point1.x, point2.x, point3.x, point4.x),
+            Math.min(point1.y, point2.y, point3.y, point4.y),
+            Math.max(point1.x, point2.x, point3.x, point4.x),
+            Math.max(point1.y, point2.y, point3.y, point4.y)
+        );
+
+        // Check for intersection
+        for (obstacle of obstacles) {
+
+        }
+
+        // Solve intersection
+
+        // Check intersection at destination
+
+        // Solve intersection at destination
+    }*/
+
+    private avoidCollision(object: MapObject, direction: Vector, obstacle: MapObject) {
+        if (direction.x === 0 && direction.y === 0) { return false; }
+
+        const oldBB = object.mapRepresentation.box;
+        const objectBB = new BoxExtension(oldBB.xmin, oldBB.ymin, oldBB.xmax, oldBB.ymax);
+
+        // 1. Calculate the side and back distances for creating a not-axis-aligned BB of the movement
+        let corner;
+        let sideDist;
+        let backDist;
+        let orthogonalLine;
+        const movementLine = new Line(objectBB.center, direction.normalize());
+        const orthogonalUnitVec = new Vector(direction.y -direction.x).normalize();
+
+        if (direction.y === 0) {
+            sideDist = objectBB.height / 2;
+            backDist = objectBB.width / 2;
+        } else if (direction.x === 0) {
+            sideDist = objectBB.width / 2;
+            backDist = objectBB.height / 2;
+        } else if (direction.x > 0) {
+            if (direction.y > 0) {
+                corner = new Point(objectBB.xmax, objectBB.ymin);
+                sideDist = corner.distanceTo(movementLine);
+                orthogonalLine = new Line(new Point(objectBB.xmax, objectBB.ymax), orthogonalUnitVec);
+                backDist = objectBB.center.distanceTo(orthogonalLine);
+            } else {
+                corner = new Point(objectBB.xmax, objectBB.ymax);
+                sideDist = corner.distanceTo(movementLine);
+                orthogonalLine = new Line(new Point(objectBB.xmax, objectBB.ymin), orthogonalUnitVec);
+                backDist = objectBB.center.distanceTo(orthogonalLine);
+            }
+        } else {
+            if (direction.y > 0) {
+                corner = new Point(objectBB.xmin, objectBB.ymin);
+                sideDist = corner.distanceTo(movementLine);
+                orthogonalLine = new Line(new Point(objectBB.xmin, objectBB.ymax), orthogonalUnitVec);
+                backDist = objectBB.center.distanceTo(orthogonalLine);
+            } else {
+                corner = new Point(objectBB.xmin, objectBB.ymax);
+                sideDist = corner.distanceTo(movementLine);
+                orthogonalLine = new Line(new Point(objectBB.xmin, objectBB.ymin), orthogonalUnitVec);
+                backDist = objectBB.center.distanceTo(orthogonalLine);
+            }
+        }
+
+        // 2. Calculate the four points of the not-axis-aligned BB of the movement
+        const directionNormVec = direction.normalize();
+        const sideVec = directionNormVec.rotate90CCW().multiply(sideDist);
+        const backVec = directionNormVec.invert().multiply(backDist);
+
+        const vecA = objectBB.centerVec.add(sideVec).add(backVec);
+        const vecB = objectBB.centerVec.add(sideVec.invert()).add(backVec);
+        const vecC = objectBB.center.add(sideVec.invert()).add(direction).add(backVec.invert());
+        const vecD = objectBB.center.add(sideVec).add(direction).add(backVec.invert());
+
+        const movementBB = new Rectangle(
+            new Point(vecA.x, vecA.y),
+            new Point(vecB.x, vecB.y),
+            new Point(vecC.x, vecC.y),
+            new Point(vecD.x, vecD.y),
+        );
+
+        // 3. Check for collision with obstacle and adjust the movement vector
+        const box = obstacle.mapRepresentation.box;
+        let points = movementBB.intersects(box);
+
+        if (points === false) { return direction; }
+
+        if (points.length === 0) {
+            points = [
+                new Point(box.xmin, box.ymin),
+                new Point(box.xmax, box.ymin),
+                new Point(box.xmax, box.ymax),
+                new Point(box.xmin, box.ymax),
+            ];
+        }
+
+        // TODO: At the moment The distance to the front orthogonal is used.
+        // TODO: It is better to create a line with p and direction and check for the point it hits the moving object.
+        let minD = direction.length + backDist * 2;
+        const frontPositionVec = objectBB.centerVec.add(directionNormVec.multiply(backDist));
+        const frontPosition = new Point(frontPositionVec.x, frontPositionVec.y);
+
+        for (p of points) {
+            minD = Math.min(minD, frontPosition.distanceTo(p));
+        }
+
+        return directionNormVec.multiply(minDist);
     }
 
     private findPossibleTarget(position: Point, direction: Vector, isPossibleTarget) {
@@ -188,7 +335,7 @@ export default class Game {
         return possibleTargets;
     }
 
-    public resolveID(mapObjectID: number){
+    public resolveID(mapObjectID: number): MapObject {
         return this.store.getObjectByID(mapObjectID);
     }
 

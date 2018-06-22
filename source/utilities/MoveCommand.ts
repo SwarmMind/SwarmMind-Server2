@@ -9,7 +9,7 @@ export default class MoveCommand extends DirectedCommand {
         this._type = 'move';
     }
 
-    protected executionFunction(game: Game){
+    protected executionFunction(game: Game) {
         game.moveMapObject(this.mapObjectID, this.direction);
     }
 }
