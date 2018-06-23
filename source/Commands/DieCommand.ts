@@ -2,7 +2,6 @@ import Command from './Command';
 import Game from '../GameModule/Game';
 
 export default class DieCommand extends Command{
-
     constructor(mapObjectID: number) {
         super(mapObjectID);
 

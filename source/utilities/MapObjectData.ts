@@ -11,3 +11,10 @@ export const playerData = {
     attackRange: Infinity,
     hitpoints: 1
 };
+
+export const blockadeData = {
+    movementRange: 0,
+    attackStrength: 0,
+    attackRange: 0,
+    hitpoints: Infinity
+}

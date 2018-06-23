@@ -1,12 +1,12 @@
 import Game from '../GameModule/Game';
-import Command from '../utilities/Command';
+import Command from '../Commands/Command';
 import CallCenter from './CallCenter';
 import User from './User';
 import UserManager from './UserManager';
 
 import { Vector } from 'flatten-js';
-import AttackCommand from '../utilities/AttackCommand';
-import MoveCommand from '../utilities/MoveCommand';
+import AttackCommand from '../Commands/AttackCommand';
+import MoveCommand from '../Commands/MoveCommand';
 
 
 export default class Overmind {
