@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "assert": "^1.4.1",
-    "es6-geometry": "^2.0.0",
     "express": "^4.16.3",
     "flatten-js": "^0.3.9",
     "socket.io": "^2.1.0"
