@@ -114,10 +114,10 @@ export default class Rectangle {
         if (points.length === 0) {
             for (let i = 0; i < 4; i++) {
                 if (
-                    box.xmin <= rectPoints[i].x &&
-                    box.xmax >= rectPoints[i].x &&
-                    box.ymin <= rectPoints[i].y &&
-                    box.ymax >= rectPoints[i].y
+                    box.xmin <= this._a.x &&
+                    box.xmax >= this._a.x &&
+                    box.ymin <= this._a.y &&
+                    box.ymax >= this._a.y
                 ) {
                     return points;
                 }
