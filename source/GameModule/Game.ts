@@ -7,12 +7,13 @@ import { Box, Circle, Line, Point, Vector } from 'flatten-js';
 import BoxExtension from '../utilities/GeometryExtensions/BoxExtension';
 import Rectangle from '../utilities/GeometryExtensions/Rectangle';
 
-import AttackCommand from '../utilities/AttackCommand';
-import Command from '../utilities/Command';
-import DamageCommand from '../utilities/DamageCommand';
-import MoveCommand from '../utilities/MoveCommand';
-import NullCommand from '../utilities/NullCommand';
+import AttackCommand from '../commands/AttackCommand';
+import Command from '../commands/Command';
+import DamageCommand from '../commands/DamageCommand';
+import MoveCommand from '../commands/MoveCommand';
+import NullCommand from '../commands/NullCommand';
 import MapObject from './MapObject';
+import SpawnCommand from '../commands/SpawnCommand'
 
 function randomNumber(min, max) {
     return Math.random() * (max - min) + min;
@@ -67,7 +68,6 @@ export default class Game {
         this.start(this._world.width, this._world.height);
     }
 
-    // TODO: Maybe outsource this to Player class?
     private findNearestMapObject(startingPoint: MapObject, possibilities: MapObject[]): MapObject {
         let nearestMapObject = null;
         let distanceToNearestMapObject = Infinity;
@@ -180,7 +180,7 @@ export default class Game {
         // TODO: so that we do not need to check all objects.
         // calculate possible collisions and edit direction vector
         const collidableObjects = this.store.mapObjects;
-        for (obstacle of collidableObjects) {
+        for (const obstacle of collidableObjects) {
             if (obstacle === mapObject) { continue; }
             direction = this.avoidCollision(mapObject, direction, obstacle);
         }
@@ -298,6 +298,7 @@ export default class Game {
 
         if (points === false) { return direction; }
 
+        points = points as Point[];
         if (points.length === 0) {
             points = [
                 new Point(box.xmin, box.ymin),
@@ -313,11 +314,11 @@ export default class Game {
         const frontPositionVec = objectBB.centerVec.add(directionNormVec.multiply(backDist));
         const frontPosition = new Point(frontPositionVec.x, frontPositionVec.y);
 
-        for (p of points) {
+        for (const p of points) {
             minD = Math.min(minD, frontPosition.distanceTo(p));
         }
 
-        return directionNormVec.multiply(minDist);
+        return directionNormVec.multiply(minD);
     }
 
     private findPossibleTarget(position: Point, direction: Vector, isPossibleTarget) {
