@@ -89,7 +89,7 @@ export default class Rectangle {
         const boxD = new Point(box.xmin, box.ymax);
         const boxPoints = [boxA, boxB, boxC, boxD, boxA];
 
-        /*for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
                 const intersects = Rectangle.segmentsCrossing(
                     rectPoints[i],
@@ -98,9 +98,9 @@ export default class Rectangle {
                     boxPoints[j+1],
                 );
 
-                if (intersects) { return true; }
+                points.concat(intersects);
             }
-        }*/
+        }
 
 
         // 2. Check if the rectangle contains a point of the box
