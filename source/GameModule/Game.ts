@@ -188,47 +188,6 @@ export default class Game {
         mapObject.moveIn(direction);
     }
 
-    // TODO: Works only for circles
-    /*private correctMovementVector(object: MapObject, direction: Vector, obstacles: MapObject[]) {
-        const objectOrigin = new Vector(new Point(0, 0), object.mapRepresentation.position);
-
-        // Create bb of movement
-        let vector90Degrees = direction.rotate90CW();
-        vector90Degrees = vector90Degrees.normalize();
-        vector90Degrees = vector90Degrees.multiply(object.mapRepresentation.r);
-        let pointVector = objectOrigin.add(vector90Degrees);
-        const point1 = new Point(pointVector.x, pointVector.y);
-
-        pointVector = pointVector.add(direction);
-        const point2 = new Point(pointVector.x, pointVector.y);
-
-        let vector90Degrees = vector90Degrees.rotate90CW();
-        vector90Degrees = vector90Degrees.rotate90CW();
-        pointVector = objectOrigin.add(vector90Degrees);
-        const point3 = new Point(pointVector.x, pointVector.y);
-
-        pointVector = pointVector.add(direction);
-        const point4 = new Point(pointVector.x, pointVector.y);
-
-        const movementBB = new Box(
-            Math.min(point1.x, point2.x, point3.x, point4.x),
-            Math.min(point1.y, point2.y, point3.y, point4.y),
-            Math.max(point1.x, point2.x, point3.x, point4.x),
-            Math.max(point1.y, point2.y, point3.y, point4.y)
-        );
-
-        // Check for intersection
-        for (obstacle of obstacles) {
-
-        }
-
-        // Solve intersection
-
-        // Check intersection at destination
-
-        // Solve intersection at destination
-    }*/
-
     private avoidCollision(object: MapObject, direction: Vector, obstacle: MapObject) {
         if (direction.x === 0 && direction.y === 0) { return false; }
 
@@ -241,7 +200,7 @@ export default class Game {
         let backDist;
         let orthogonalLine;
         const movementLine = new Line(objectBB.center, direction.normalize());
-        const orthogonalUnitVec = new Vector(direction.y -direction.x).normalize();
+        const orthogonalUnitVec = direction.rotate90CW().normalize();
 
         if (direction.y === 0) {
             sideDist = objectBB.height / 2;
