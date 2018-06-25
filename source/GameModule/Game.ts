@@ -19,7 +19,7 @@ function randomNumber(min, max) {
 }
 
 export default class Game {
-    private world: World;
+    private _world: World;
     private store: FactoryStore;
 
     private _round: number;
@@ -46,8 +46,8 @@ export default class Game {
     public get initState() {
         return {
             config: {
-                width: this.world.width,
-                height: this.world.height,
+                width: this._world.width,
+                height: this._world.height,
             },
             state: this.state,
         };
@@ -55,7 +55,7 @@ export default class Game {
 
     public start(width, height) {
         this._round = 0;
-        this.world = new World(width, height);
+        this._world = new World(width, height);
         this.addPlayer(10, 10);
         this.addPlayer(11, 10);
         this.addPlayer(10, 11);
@@ -64,7 +64,7 @@ export default class Game {
     public restart() {
         this.store.flush();
         this._lastExecutedCommands = [];
-        this.start(this.world.width, this.world.height);
+        this.start(this._world.width, this._world.height);
     }
 
     // TODO: Maybe outsource this to Player class?
@@ -97,12 +97,10 @@ export default class Game {
             direction = (new Vector(npc.position, nearestPlayer.position)).normalize();
             if (npc.isInAttackRange(nearestPlayer)) {
                 return new AttackCommand(npc.ID, direction);
-            }
-            else {
+            } else {
                 return new MoveCommand(npc.ID, direction);
             }
-        }
-        else {
+        } else {
             return new NullCommand();
         }
     }
@@ -113,31 +111,32 @@ export default class Game {
 
     private spawnNPC() {
         const direction = Math.floor(randomNumber(1, 5));
-        const positionXBorder = Math.random() * (this.world.width - 2) + 1;
-        const positionYBorder = Math.random() * (this.world.height - 2) + 1;
+        const positionXBorder = Math.random() * (this._world.width - 2) + 1;
+        const positionYBorder = Math.random() * (this._world.height - 2) + 1;
 
         if (direction === 1) {
             this.addNPC(positionXBorder, 1);
         }
         if (direction === 3) {
-            this.addNPC(positionXBorder, this.world.height - 1);
+            this.addNPC(positionXBorder, this._world.height - 1);
         }
         if (direction === 2) {
             this.addNPC(1, positionYBorder);
         }
         if (direction === 4) {
-            this.addNPC(this.world.width - 1, positionYBorder);
+            this.addNPC(this._world.width - 1, positionYBorder);
         }
+    }
+
+    private executeAndStoreCommand(command: Command) {
+        command.execute(this);
+        this._lastExecutedCommands.push(...command);
     }
 
     private executeAndStoreCommands(commands: Command[]) {
         // TODO: Maybe we should first execute the movement commands and then the shooting commands?
         for (const command of commands) {
-            command.execute(this);
-
-            for(const partCommand of command) {
-                this._lastExecutedCommands.push(partCommand);
-            }
+            this.executeAndStoreCommand( command);
         }
     }
 
@@ -157,11 +156,12 @@ export default class Game {
     }
 
     public addPlayer(x, y) {
-        this.store.createPlayer(x, y, (point) => new Circle(point, 0.5));
+        let player = this.store.createPlayer(x, y, (point) => new Circle(point, 0.5));
+        this.executeAndStoreCommand(new SpawnCommand(player.ID));
     }
 
     public addNPC(x, y) {
-        this.store.createNPC(x, y, (point) => new Circle(point, 0.5));
+        let npc = this.store.createNPC(x, y, (point) => new Circle(point, 0.5));
     }
 
     public removeMapObject(mapObject: MapObject) {
@@ -335,7 +335,7 @@ export default class Game {
         return possibleTargets;
     }
 
-    public resolveID(mapObjectID: number): MapObject {
+    public resolveID(mapObjectID: number): MapObject{
         return this.store.getObjectByID(mapObjectID);
     }
 
@@ -344,12 +344,12 @@ export default class Game {
         const possibleTargets = this.findPossibleTarget(attacker.position, direction, attacker.isTarget.bind(attacker));
         const target = this.findNearestMapObject(attacker, possibleTargets);
 
-        if(target !== null){
+        if(target !== null) {
             return new DamageCommand(attacker, target);
         }
     }
 
-    public killMapObject(mapObjectID: number){
+    public killMapObject(mapObjectID: number) {
         const mapObject = this.resolveID(mapObjectID);
         this.removeMapObject(mapObject);
     }
@@ -358,7 +358,7 @@ export default class Game {
         return this.store.players.map((player) => player.ID);
     }
 
-    public isOver(){
+    public isOver() {
         return this.store.players.length === 0;
     }
 

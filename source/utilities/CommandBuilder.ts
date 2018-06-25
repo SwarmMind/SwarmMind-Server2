@@ -1,6 +1,6 @@
-import AttackCommand from './AttackCommand';
-import Command from './Command';
-import MoveCommand from './MoveCommand';
+import AttackCommand from '../Commands/AttackCommand';
+import Command from '../Commands/Command';
+import MoveCommand from '../Commands/MoveCommand';
 
 import { Point, Vector } from 'flatten-js';
 

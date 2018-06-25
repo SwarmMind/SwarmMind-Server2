@@ -37,6 +37,10 @@ export default abstract class MapObject {
         return false;
     }
 
+    public isBlockade(): boolean {
+        return false;
+    }
+
     public serialize() {
         return {ID: this.ID, x: this._position.x, y: this._position.y};
     }

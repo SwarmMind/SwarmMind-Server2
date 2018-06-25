@@ -1,7 +1,7 @@
 import Game from '../GameModule/Game';
 
 export default abstract class Command {
-    private _mapObjectID: number;
+    private readonly _mapObjectID: number;
     private implication: Command;
     protected _type: string;
 
@@ -25,18 +25,18 @@ export default abstract class Command {
         return {ID: this.mapObjectID, type: this.type};
     }
 
-    public implicate(implication: Command){
+    public implicate(implication: Command) {
         this.implication = implication;
     }
 
     protected executionFunction(game: Game): void | Command {}
 
-    public calculateDifference(command: Command): number { return 0 }
+    public calculateDifference(command: Command): number { return 0; }
 
     public execute(game: Game) {
         const implication = this.executionFunction(game);
 
-        if(implication){
+        if(implication) {
             this.implication = implication;
             this.implication.execute(game);
         }
@@ -44,9 +44,9 @@ export default abstract class Command {
 
     public applyWeight(weight: number) {}
 
-    *[Symbol.iterator](){
+    *[Symbol.iterator]() {
         yield this;
-        if(this.implication !== null){
+        if(this.implication !== null) {
             yield* this.implication;
         }
     }

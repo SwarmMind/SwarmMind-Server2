@@ -1,4 +1,4 @@
-import Command from '../utilities/Command';
+import Command from '../Commands/Command';
 
 
 export default class User {
