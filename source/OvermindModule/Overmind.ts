@@ -36,6 +36,7 @@ export default class Overmind {
         this.initializeIntervals();
     }
 
+    // TODO: Outsource to a static class or something? It isn't really Overmind specific.
     private addVectors(vector1: Vector, vector2: Vector): Vector {
         return new Vector(vector1.x + vector2.x, vector1.y + vector2.y);
     }
@@ -76,19 +77,21 @@ export default class Overmind {
         return playerCommands;
     }
 
+    // TODO: Outsource to a static class or something? It isn't really Overmind specific.
     private accumulateVectors(vectors: Vector[]){
         return vectors.reduce((accumulator, current) =>
             this.addVectors(accumulator, current.direction), new Vector(0, 0))
     }
 
+    // TODO: Maybe outsource this to User class?
     private changeUserWeighting(user: User, playerID: number, command: Command) {
         if(command === null){
             const userCommand = user.commands.get(playerID);
             user.changeWeightBy(userCommand.calculateDifference(command));
-        }        
+        }
     }
 
-    private generateCommandsToBeExecuted(): Command[] {        // TODO: should update biases
+    private generateCommandsToBeExecuted(): Command[] {
         const users = UserManager.users;
         const generatedCommands = [];
 
@@ -99,11 +102,12 @@ export default class Overmind {
         let attackCommands, moveCommands, direction, generatedCommand;
         for (const [playerID, commands] of playerCommands) {
             generatedCommand = null;
-            
-            if(commands.length > 0){
+
+            if(commands.length > 0) {
                 attackCommands = commands.filter((command) => command.type === 'attack');
                 moveCommands = commands.filter((command) => command.type === 'move');
-                
+
+                // TODO: We should think of executing both, attack and movement
                 if (attackCommands.length >= moveCommands.length) {
                     direction = this.accumulateVectors(attackCommands);
                     generatedCommand = new AttackCommand(playerID, direction);
@@ -116,22 +120,23 @@ export default class Overmind {
                 for(const user of users) {
                     this.changeUserWeighting(user, playerID, generatedCommand);
                 }
-    
+
                 generatedCommands.push(generatedCommand);
-            }            
+            }
         }
         console.log(generatedCommands)
         return generatedCommands;
     }
 
     private processRound() {
+        // TODO: Not sure if I get this right
         const oldGameState = this.game.state;
         this.game.newRound(this.generateCommandsToBeExecuted());
         oldGameState.commands = this.game.lastExecutedCommands.map((command) => command.serialize());
         this.callCenter.sendNewRoundInformations(oldGameState);
         UserManager.clearAllUserCommands();
 
-        if(this.game.isOver()){
+        if(this.game.isOver()) {
             this.callCenter.informGameOver();
             clearInterval(this.roundIntervalID);
             clearInterval(this.tickIntervalID);
