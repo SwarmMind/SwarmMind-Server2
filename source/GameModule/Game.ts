@@ -241,8 +241,8 @@ export default class Game {
 
         const vecA = objectBB.centerVec.add(sideVec).add(backVec);
         const vecB = objectBB.centerVec.add(sideVec.invert()).add(backVec);
-        const vecC = objectBB.center.add(sideVec.invert()).add(direction).add(backVec.invert());
-        const vecD = objectBB.center.add(sideVec).add(direction).add(backVec.invert());
+        const vecC = objectBB.centerVec.add(sideVec.invert()).add(direction).add(backVec.invert());
+        const vecD = objectBB.centerVec.add(sideVec).add(direction).add(backVec.invert());
 
         const movementBB = new Rectangle(
             new Point(vecA.x, vecA.y),
