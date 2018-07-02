@@ -27,8 +27,8 @@ export default class Overmind {
     }
 
     public initializeIntervals() {
-        this.roundIntervalID = this.setInterval(4, this.processRound);
-        this.tickIntervalID = this.setInterval(1, this.sendAccumulatedCommands);
+        this.roundIntervalID = this.setInterval(6, this.processRound);
+        this.tickIntervalID = this.setInterval(0.2, this.sendAccumulatedCommands);
     }
 
     public restart() {
