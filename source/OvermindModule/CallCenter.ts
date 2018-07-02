@@ -38,6 +38,14 @@ export default class CallCenter {
                 this.overmind.takeCommand(CommandBuilder.build(type, parseInt(unitID), JSON.parse(direction)), user);
             });
 
+            socket.on('chat', (userName, text, position) => {
+                this.connectionsDo(function(con){
+                    if(con != connection){
+                        con.socket.emit('chat', {userName: userName, text: text, position: position});
+                    }
+                });
+            });
+
             socket.on('disconnect', () => {
                 console.log('A client disconnected');
 
