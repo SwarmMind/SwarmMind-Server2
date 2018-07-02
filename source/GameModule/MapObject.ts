@@ -19,8 +19,8 @@ export default abstract class MapObject {
         return {};
     }
 
-    private importStats(statsObject){
-        for(const key in statsObject){
+    private importStats(statsObject) {
+        for(const key in statsObject) {
             this[`_${key}`] = statsObject[key];
         }
     }
@@ -34,6 +34,10 @@ export default abstract class MapObject {
     }
 
     public isPlayer(): boolean {
+        return false;
+    }
+
+    public isBlockade(): boolean {
         return false;
     }
 
@@ -58,6 +62,12 @@ export default abstract class MapObject {
         return this._movementRange;
     }
 
+    public intersectsInRange(otherObject: MapObject, range: number): boolean {
+        if (this._position.distanceTo(otherObject._position) > range) { return false; }
+        const intersection = this.mapRepresentation.intersect(otherObject.mapRepresentation);
+        if (intersection.size > 0) { return true; }
+    }
+
     public moveIn(direction: Vector) {
         this.position = this.position.translate(direction.multiply(this.movementRange));
     }
@@ -66,11 +76,11 @@ export default abstract class MapObject {
         return this.position.distanceTo(mapObject.position)[0];
     }
 
-    public receiveDamage(amount: number){
+    public receiveDamage(amount: number) {
         this._hitpoints -= amount;
     }
 
-    public attack(mapObject: MapObject){
+    public attack(mapObject: MapObject) {
         mapObject.receiveDamage(this._attackStrength);
     }
 
@@ -82,7 +92,7 @@ export default abstract class MapObject {
         return false;
     }
 
-    public isDead(){
+    public isDead() {
         return this._hitpoints <= 0;
     }
 }

@@ -10,6 +10,7 @@ import UserManager from './UserManager';
 
 export default class CallCenter {
     private overmind: Overmind;
+    // For what do we need the sockets array? WebStorm says it's never queried.
     private sockets: sio.Socket[];
     private connections: Array<Connection>;
 
@@ -35,6 +36,14 @@ export default class CallCenter {
                 console.log('New command: Unit #' + unitID + ' has to ' + type + ' in direction ' + direction);
 
                 this.overmind.takeCommand(CommandBuilder.build(type, parseInt(unitID), JSON.parse(direction)), user);
+            });
+
+            socket.on('chat', (userName, text, position) => {
+                this.connectionsDo(function(con){
+                    if(con != connection){
+                        con.socket.emit('chat', {userName: userName, text: text, position: position});
+                    }
+                });
             });
 
             socket.on('disconnect', () => {
