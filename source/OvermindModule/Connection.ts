@@ -13,4 +13,8 @@ export default class Connection {
     public get user(): User {
         return this._user;
     }
+
+    public send(event: string, ...args){
+        this.socket.emit(event, ...args);
+    }
 }

@@ -162,6 +162,7 @@ export default class Game {
 
     public addNPC(x, y) {
         let npc = this.store.createNPC(x, y, (point) => new Circle(point, 0.5));
+        this.executeAndStoreCommand(new SpawnCommand(npc.ID));
     }
 
     public removeMapObject(mapObject: MapObject) {

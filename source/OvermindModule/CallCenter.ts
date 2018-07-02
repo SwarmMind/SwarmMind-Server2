@@ -10,14 +10,11 @@ import UserManager from './UserManager';
 
 export default class CallCenter {
     private overmind: Overmind;
-    // For what do we need the sockets array? WebStorm says it's never queried.
-    private sockets: sio.Socket[];
     private connections: Array<Connection>;
 
     constructor(overmind: Overmind, port = 3000) {
         this.overmind = overmind;
         this.connections = [];
-        this.sockets = [];
 
         const server = http.createServer(app);    // Made APP to a function (thats how its used in the chat example)
         const io = sio(server);
@@ -29,7 +26,7 @@ export default class CallCenter {
             const connection = new Connection(socket, user);
             this.connections.push(connection);
 
-            const initState = this.serializeObject(this.overmind.initState); // TODO: maybe change this later
+            const initState = this.serializeObject(this.overmind.initState);
             socket.emit('initState', initState);
 
             socket.on('command', (unitID, type, direction) => {
@@ -41,7 +38,8 @@ export default class CallCenter {
             socket.on('chat', (userName, text, position) => {
                 this.connectionsDo(function(con){
                     if(con != connection){
-                        con.socket.emit('chat', {userName: userName, text: text, position: position});
+                        con.send('chat',
+                            JSON.stringify({userName: userName, text: text, position: position}));
                     }
                 });
             });
@@ -73,7 +71,9 @@ export default class CallCenter {
     public sendAccumulatedCommands(playerCommandMap: object) {
         const playerCommandMapSerialized = this.serializeObject(playerCommandMap);
         console.log(playerCommandMapSerialized);
-        this.connectionsDo((connection) => connection.socket.emit('accumulatedCommands', playerCommandMapSerialized));
+
+        this.connectionsDo((connection) =>
+            connection.socket.emit('accumulatedCommands', playerCommandMapSerialized));
     }
 
     public informGameOver() {
