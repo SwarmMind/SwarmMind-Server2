@@ -147,6 +147,7 @@ export default class Overmind {
     public takeCommand(command: Command, user: User){
         if(this.game.isValidCommand(command)){
             user.takeCommand(command);
+            this.sendAccumulatedCommands();
         }
     }
 

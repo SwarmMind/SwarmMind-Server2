@@ -28,4 +28,8 @@ export default class UserManager {
             user.clearCommands();
         }
     }
+
+    static userCommandCount() {
+        //this.users.reduce((acc, currentUser) => acc + currentUser.commands.values().reduce((acc, current) => acc + (curr)), 0)
+    }
 }

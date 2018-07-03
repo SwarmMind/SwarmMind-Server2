@@ -1,13 +1,15 @@
 import { Point, Vector } from 'flatten-js';
 
-import b2Common = Box2D.Common;
-import b2Math = Box2D.Common.Math;
-import b2Collision = Box2D.Collision;
-import b2Shapes = Box2D.Collision.Shapes;
-import b2Dynamics = Box2D.Dynamics;
-import b2Contacts = Box2D.Dynamics.Contacts;
-import b2Controllers = Box2D.Dynamics.Controllers;
-import b2Joints = Box2D.Dynamics.Joints;
+const Box2D = require('box2dweb');
+
+const b2Common = Box2D.Common;
+const b2Math = Box2D.Common.Math;
+const b2Collision = Box2D.Collision;
+const b2Shapes = Box2D.Collision.Shapes;
+const b2Dynamics = Box2D.Dynamics;
+const b2Contacts = Box2D.Dynamics.Contacts;
+const b2Controllers = Box2D.Dynamics.Controllers;
+const b2Joints = Box2D.Dynamics.Joints;
 
 const b2Vec2 = b2Math.b2Vec2;
 const b2BodyDef = b2Dynamics.b2BodyDef;
