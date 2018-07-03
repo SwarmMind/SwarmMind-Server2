@@ -15,7 +15,8 @@
     "run-tests": "mocha dist/tests/**/*.js --reporter mochawesome --reporter-options reportDir=dist/test_results",
     "test-coverage": "istanbul cover node_modules/mocha/bin/_mocha dist/tests/**/*.js",
     "build-ts": "tsc",
-    "watch-ts": "tsc -w"
+    "watch-ts": "tsc -w",
+    "start-bots": "node dist/Bots/Bot.js"
   },
   "dependencies": {
     "assert": "^1.4.1",

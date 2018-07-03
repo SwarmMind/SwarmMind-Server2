@@ -146,7 +146,6 @@ export default class Game {
      * @param {Command[]} commands
      */
     public newRound(commands: Command[]) {
-        console.log(commands);
         this._lastExecutedCommands = [];
 
         this.executeAndStoreCommands(commands);      // executes player-action

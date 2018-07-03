@@ -79,8 +79,15 @@ export default class Overmind {
 
     // TODO: Outsource to a static class or something? It isn't really Overmind specific.
     private accumulateVectors(vectors: Vector[]){
-        return vectors.reduce((accumulator, current) =>
-            this.addVectors(accumulator, current.direction), new Vector(0, 0))
+        const sum = vectors.reduce((accumulator, current) =>
+            this.addVectors(accumulator, current.direction), new Vector(0, 0));
+
+        if(sum.length > 1){
+            return sum.normalize()
+        }
+        else{
+            return sum
+        }
     }
 
     // TODO: Maybe outsource this to User class?

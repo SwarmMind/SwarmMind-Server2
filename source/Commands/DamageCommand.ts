@@ -7,10 +7,12 @@ import DieCommand from './DieCommand';
 
 export default class DamageCommand extends DirectedCommand {
     private target: MapObject;
+    private attacker: MapObject;
     constructor(attacker: MapObject, target: MapObject){
         super(target.ID, new Vector(attacker.position, target.position));
 
         this.target = target;
+        this.attacker = attacker;
         this._type = 'damage';
     }
 
@@ -19,6 +21,7 @@ export default class DamageCommand extends DirectedCommand {
         attacker.attack(this.target);
 
         if(this.target.isDead()){
+            console.log(`Unit${this.attacker.ID} killed Unit${this.target.ID}`);
             return new DieCommand(this.target.ID);
         }
     }
