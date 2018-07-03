@@ -70,7 +70,7 @@ export default class CallCenter {
 
     public sendAccumulatedCommands(playerCommandMap: object) {
         const playerCommandMapSerialized = this.serializeObject(playerCommandMap);
-        console.log(playerCommandMapSerialized);
+        // console.log(playerCommandMapSerialized);
 
         this.connectionsDo((connection) =>
             connection.socket.emit('accumulatedCommands', playerCommandMapSerialized));

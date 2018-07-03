@@ -14,6 +14,7 @@ import MoveCommand from '../commands/MoveCommand';
 import NullCommand from '../commands/NullCommand';
 import MapObject from './MapObject';
 import SpawnCommand from '../commands/SpawnCommand'
+import Physics from './Physics';
 
 function randomNumber(min, max) {
     return Math.random() * (max - min) + min;
@@ -134,10 +135,41 @@ export default class Game {
     }
 
     private executeAndStoreCommands(commands: Command[]) {
-        // TODO: Maybe we should first execute the movement commands and then the shooting commands?
+        const movementCommands = [];
+        const otherCommands = [];
+
         for (const command of commands) {
-            this.executeAndStoreCommand( command);
+            if (command.type === 'move') {
+                movementCommands.push(command);
+            } else {
+                otherCommands.push(command);
+            }
         }
+
+        const physics = new Physics();
+        const objects = this.store.mapObjects;
+        for (const object of objects) {
+            physics.addObject(object.ID, object.position);
+        }
+        for (const command of movementCommands) {
+            physics.addMovement(command.mapObjectID, command.direction);
+            this._lastExecutedCommands.push(...command);
+        }
+        physics.simulate();
+        const newPositions = physics.positions;
+        for (const [id, pos] of newPositions) {
+            const obj = this.store.getObjectByID(id);
+            obj.position = pos;
+        }
+
+
+        for (const command of otherCommands) {
+            this.executeAndStoreCommand(command);
+        }
+
+        /*for (const command of commands) {
+            this.executeAndStoreCommand( command);
+        }*/
     }
 
     /**
@@ -146,7 +178,7 @@ export default class Game {
      * @param {Command[]} commands
      */
     public newRound(commands: Command[]) {
-        console.log(commands);
+        // console.log(commands);
         this._lastExecutedCommands = [];
 
         this.executeAndStoreCommands(commands);      // executes player-action
@@ -175,7 +207,7 @@ export default class Game {
 
     public moveMapObject(mapObjectID: number, direction: Vector) {
         const mapObject = this.resolveID(mapObjectID);
-        console.log(mapObject, direction);
+        // console.log(mapObject, direction);
 
         // TODO: We could make this much more efficient if we use a kd-tree or something,
         // TODO: so that we do not need to check all objects.

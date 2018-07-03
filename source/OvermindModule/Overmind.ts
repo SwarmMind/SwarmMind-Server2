@@ -124,7 +124,7 @@ export default class Overmind {
                 generatedCommands.push(generatedCommand);
             }
         }
-        console.log(generatedCommands)
+        // console.log(generatedCommands)
         return generatedCommands;
     }
 
