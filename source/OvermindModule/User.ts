@@ -31,7 +31,7 @@ export default class User {
         this._commands = new Map();
     }
 
-    public givenCommandCount() {
+    public get givenCommandCount() {
         return this.commands.size;
     }
 }

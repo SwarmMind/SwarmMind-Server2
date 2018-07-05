@@ -30,6 +30,6 @@ export default class UserManager {
     }
 
     static givenCommandCount() {
-        this.users.reduce((acc, user) => acc + user.givenCommandCount(), 0)
+        return this.users.reduce((acc, user) => acc + user.givenCommandCount, 0)
     }
 }

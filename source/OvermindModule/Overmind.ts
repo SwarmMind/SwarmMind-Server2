@@ -59,7 +59,7 @@ export default class Overmind {
 
         obj.numberOfGivenCommands = UserManager.givenCommandCount();
         obj.maxNumberOfCommands = this.getMaxNumberOfCommands(users);
-
+        console.log(obj);
         this.callCenter.sendAccumulatedCommands(obj);
     }
 
