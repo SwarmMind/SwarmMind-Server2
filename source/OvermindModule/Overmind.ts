@@ -46,12 +46,12 @@ export default class Overmind {
 
         const playerCommands = this.getPlayerCommandMap(users);
 
-        const obj: any = {};
+        const obj: any = {playerCommands: {}};
         let attackCommands, moveCommands;
         for (const [playerID, commands] of playerCommands) {
             attackCommands = commands.filter((command) => command.type === 'attack');
             moveCommands = commands.filter((command) => command.type === 'move');
-            obj[playerID] = {
+            obj.playerCommands[playerID] = {
                 move: moveCommands.map((command) => command.direction),
                 attack: attackCommands.map((command) => command.direction),
             };
