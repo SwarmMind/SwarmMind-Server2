@@ -325,4 +325,12 @@ export default class Game {
     public isValidCommand(command: Command) {
         return this.store.getObjectByID(command.mapObjectID) !== null;
     }
+
+    public get playerNumber() {
+        return this.store.playerNumber;
+    }
+
+    public get npcNumber(){
+        return this.store.npcNumber;
+    }
 }

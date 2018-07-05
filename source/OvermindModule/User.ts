@@ -30,4 +30,8 @@ export default class User {
     public clearCommands() {
         this._commands = new Map();
     }
+
+    public givenCommandCount() {
+        return this.commands.size;
+    }
 }
