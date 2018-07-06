@@ -7,13 +7,13 @@ import { Box, Circle, Line, Point, Vector } from 'flatten-js';
 import BoxExtension from '../utilities/GeometryExtensions/BoxExtension';
 import Rectangle from '../utilities/GeometryExtensions/Rectangle';
 
-import AttackCommand from '../commands/AttackCommand';
-import Command from '../commands/Command';
-import DamageCommand from '../commands/DamageCommand';
-import MoveCommand from '../commands/MoveCommand';
-import NullCommand from '../commands/NullCommand';
+import AttackCommand from '../Commands/AttackCommand';
+import Command from '../Commands/Command';
+import DamageCommand from '../Commands/DamageCommand';
+import MoveCommand from '../Commands/MoveCommand';
+import NullCommand from '../Commands/NullCommand';
 import MapObject from './MapObject';
-import SpawnCommand from '../commands/SpawnCommand'
+import SpawnCommand from '../Commands/SpawnCommand'
 
 function randomNumber(min, max) {
     return Math.random() * (max - min) + min;
