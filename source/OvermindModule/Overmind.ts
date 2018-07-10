@@ -40,7 +40,6 @@ export default class Overmind {
     public startNextRound(){
         clearTimeout(this.roundIntervalID);
         this.processRound();
-        this.initializeMainInterval();
     }
 
     // TODO: Outsource to a static class or something? It isn't really Overmind specific.
@@ -97,11 +96,7 @@ export default class Overmind {
         const sum = vectors.reduce((accumulator, current) =>
             this.addVectors(accumulator, current.direction), new Vector(0, 0));
 
-        if (sum.length > 1) {
-            return sum.normalize();
-        } else {
-            return sum;
-        }
+        return sum.length > 1 ? sum.normalize() : sum;
     }
 
     // TODO: Maybe outsource this to User class?
@@ -156,9 +151,11 @@ export default class Overmind {
         UserManager.clearAllUserCommands();
         this.givenCommandCount = 0;
 
+        this.initializeMainInterval();
+
         if (this.game.isOver()) {
             this.callCenter.informGameOver();
-            clearInterval(this.roundIntervalID);
+            clearTimeout(this.roundIntervalID);
             this.restart();
         }
     }
@@ -166,8 +163,8 @@ export default class Overmind {
     public takeCommand(command: Command, user: User) {
         if (this.game.isValidCommand(command)) {
             user.takeCommand(command);
-            this.callCenter.sendAccumulatedCommands();
             this.givenCommandCount++;
+            this.callCenter.sendAccumulatedCommands();
         }
 
         if(this.givenCommandCount == this.maxNumberOfCommands()){
