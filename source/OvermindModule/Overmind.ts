@@ -14,6 +14,7 @@ export default class Overmind {
     private givenCommandCount: number;
 
     private roundTime: number;
+    private roundStartTime: number;
 
     constructor() {
         this.game = new Game();
@@ -29,6 +30,7 @@ export default class Overmind {
     }
 
     public initializeMainInterval() {
+        this.roundStartTime = Date.now();
         this.roundIntervalID = setTimeout(this.processRound.bind(this), this.roundTime * 1000);
     }
 
@@ -174,7 +176,10 @@ export default class Overmind {
 
     public get initState() {
         const state = this.game.initState;
-        Object.assign(state.config, {roundTime: this.roundTime});
+        Object.assign(state.config, {
+            roundTime: this.roundTime,
+            timeSinceLastRound: (this.roundStartTime - Date.now()) / 1000
+        });
 
         return state;
     }
