@@ -178,7 +178,7 @@ export default class Overmind {
         const state = this.game.initState;
         Object.assign(state.config, {
             roundTime: this.roundTime,
-            timeSinceLastRound: (this.roundStartTime - Date.now()) / 1000
+            timeSinceLastRound: (Date.now() - this.roundStartTime) / 1000
         });
 
         return state;
