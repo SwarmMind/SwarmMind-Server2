@@ -17,8 +17,8 @@ function randSign(){
 class Bot{
     private io;
 
-    constructor(port) {
-        this.io = sio(`http://localhost:${port}`);
+    constructor(address, port) {
+        this.io = sio(`${address}:${port}`);
         this.io.on('state', (state) => {
             const parsedState = JSON.parse(state);
             console.log(parsedState);
@@ -63,6 +63,7 @@ class Angsthase extends Bot {
 
 class RandomWalker extends Bot {
     protected commandFor(player, npcList): [number, string, string]{
+        console.log('command');
         return [player.ID, 'move', JSON.stringify((new Vector(new Point(0, 0), new Point(Math.random() * randSign(), Math.random() * randSign()))).normalize())];
     }
 }
@@ -76,7 +77,7 @@ class Mitläufer extends Bot {
 }
 
 for(let i = 0; i < 10; i++){
-    new RandomWalker(3000);
+    new RandomWalker('http://159.69.32.65', 3000);
 }
 
 

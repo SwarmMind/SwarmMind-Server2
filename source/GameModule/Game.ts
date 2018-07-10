@@ -181,8 +181,9 @@ export default class Game {
         // calculate possible collisions and edit direction vector
         const collidableObjects = this.store.mapObjects;
         for (const obstacle of collidableObjects) {
-            if (obstacle === mapObject) { continue; }
-            direction = this.avoidCollision(mapObject, direction, obstacle);
+            if (obstacle !== mapObject) {
+                direction = this.avoidCollision(mapObject, direction, obstacle);
+            }
         }
 
         mapObject.moveIn(direction);

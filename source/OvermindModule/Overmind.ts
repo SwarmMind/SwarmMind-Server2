@@ -8,10 +8,10 @@ import User from '../OvermindModule/User';
 import UserManager from '../OvermindModule/UserManager';
 
 export default class Overmind {
-    private roundIntervalID: number;
-    private tickIntervalID: number;
+    private roundIntervalID;
     private game: Game;
     private callCenter: CallCenter;
+    private givenCommandCount: number;
 
     private roundTime: number;
 
@@ -20,20 +20,27 @@ export default class Overmind {
         this.callCenter = new CallCenter(this);
 
         this.roundTime = 6;
+        this.givenCommandCount = 0;
     }
 
     public playGame(width, height) {
         this.game.start(width, height);
-        this.initializeIntervals();
+        this.initializeMainInterval();
     }
 
-    public initializeIntervals() {
-        this.roundIntervalID = this.setInterval(this.roundTime, this.processRound);
+    public initializeMainInterval() {
+        this.roundIntervalID = setTimeout(this.processRound.bind(this), this.roundTime * 1000);
     }
 
     public restart() {
         this.game.restart();
-        this.initializeIntervals();
+        this.initializeMainInterval();
+    }
+
+    public startNextRound(){
+        clearTimeout(this.roundIntervalID);
+        this.processRound();
+        this.initializeMainInterval();
     }
 
     // TODO: Outsource to a static class or something? It isn't really Overmind specific.
@@ -41,7 +48,7 @@ export default class Overmind {
         return new Vector(vector1.x + vector2.x, vector1.y + vector2.y);
     }
 
-    private sendAccumulatedCommands() {
+    public get accumulatedCommands() {
         const users = UserManager.users;
 
         const playerCommands = this.getPlayerCommandMap(users);
@@ -57,15 +64,15 @@ export default class Overmind {
             };
         }
 
-        obj.numberOfGivenCommands = UserManager.givenCommandCount();
-        obj.maxNumberOfCommands = this.getMaxNumberOfCommands(users);
+        obj.numberOfGivenCommands = this.givenCommandCount;
+        obj.maxNumberOfCommands = this.maxNumberOfCommands();
         console.log(obj);
-        this.callCenter.sendAccumulatedCommands(obj);
+        return obj;
     }
 
 
-    private getMaxNumberOfCommands(users) {
-        return users.length * this.game.playerNumber;
+    private maxNumberOfCommands() {
+        return UserManager.users.length * this.game.playerNumber;
     }
 
     private getPlayerCommandMap(users: User[]) {
@@ -141,18 +148,17 @@ export default class Overmind {
     }
 
     private processRound() {
-        // TODO: Not sure if I get this right
         const oldGameState = this.game.state;
         this.game.newRound(this.generateCommandsToBeExecuted());
         oldGameState.commands = this.game.lastExecutedCommands.map((command) => command.serialize());
 
         this.callCenter.sendNewRoundInformations(oldGameState);
         UserManager.clearAllUserCommands();
+        this.givenCommandCount = 0;
 
         if (this.game.isOver()) {
             this.callCenter.informGameOver();
             clearInterval(this.roundIntervalID);
-            clearInterval(this.tickIntervalID);
             this.restart();
         }
     }
@@ -160,16 +166,13 @@ export default class Overmind {
     public takeCommand(command: Command, user: User) {
         if (this.game.isValidCommand(command)) {
             user.takeCommand(command);
-            this.sendAccumulatedCommands();
+            this.callCenter.sendAccumulatedCommands();
+            this.givenCommandCount++;
         }
-    }
 
-    /**
-     * @param {number} duration in seconds
-     */
-    private setInterval(duration: number, fn) {
-        // if the function is not bound it does not know the this context
-        return setInterval(fn.bind(this), duration * 1000);
+        if(this.givenCommandCount == this.maxNumberOfCommands()){
+            this.startNextRound();
+        }
     }
 
     public get initState() {

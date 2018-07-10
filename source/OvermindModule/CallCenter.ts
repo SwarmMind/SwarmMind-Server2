@@ -27,6 +27,7 @@ export default class CallCenter {
             this.connections.push(connection);
 
             connection.send('initState', this.overmind.initState);
+            this.sendAccumulatedCommands();
 
             socket.on('command', (unitID, type, direction) => {
                 console.log('New command: Unit #' + unitID + ' has to ' + type + ' in direction ' + direction);
@@ -64,9 +65,9 @@ export default class CallCenter {
         this.connectionsDo((connection) => connection.send('state', state));
     }
 
-    public sendAccumulatedCommands(playerCommandMap: object) {
+    public sendAccumulatedCommands() {
         this.connectionsDo((connection) =>
-            connection.send('accumulatedCommands', playerCommandMap));
+            connection.send('accumulatedCommands', this.overmind.accumulatedCommands));
     }
 
     public informGameOver() {
