@@ -23,6 +23,14 @@ export default class FactoryStore {
         return this._mapObjects.npcs;
     }
 
+    public get playerNumber() {
+        return this.players.length;
+    }
+
+    public get npcNumber() {
+        return this.players.length;
+    }
+
     public get mapObjects() {
         return this._mapObjects.mapObjects;
     }

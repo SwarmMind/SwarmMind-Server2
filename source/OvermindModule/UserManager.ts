@@ -29,7 +29,7 @@ export default class UserManager {
         }
     }
 
-    static userCommandCount() {
-        //this.users.reduce((acc, currentUser) => acc + currentUser.commands.values().reduce((acc, current) => acc + (curr)), 0)
+    static givenCommandCount() {
+        return this.users.reduce((acc, user) => acc + user.givenCommandCount, 0)
     }
 }

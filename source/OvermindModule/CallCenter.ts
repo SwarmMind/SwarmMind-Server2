@@ -26,8 +26,7 @@ export default class CallCenter {
             const connection = new Connection(socket, user);
             this.connections.push(connection);
 
-            const initState = this.serializeObject(this.overmind.initState);
-            socket.emit('initState', initState);
+            connection.send('initState', this.overmind.initState);
 
             socket.on('command', (unitID, type, direction) => {
                 console.log('New command: Unit #' + unitID + ' has to ' + type + ' in direction ' + direction);
@@ -38,8 +37,7 @@ export default class CallCenter {
             socket.on('chat', (userName, text, position) => {
                 this.connectionsDo(function(con){
                     if(con != connection){
-                        con.send('chat',
-                            JSON.stringify({userName: userName, text: text, position: position}));
+                        con.send('chat',{userName: userName, text: text, position: position});
                     }
                 });
             });
@@ -63,17 +61,12 @@ export default class CallCenter {
      * sends game-state to all clients
      */
     public sendNewRoundInformations(state) {
-        const roundInformations = this.serializeObject(state);
-
-        this.connectionsDo((connection) => connection.socket.emit('state', roundInformations));
+        this.connectionsDo((connection) => connection.send('state', state));
     }
 
     public sendAccumulatedCommands(playerCommandMap: object) {
-        const playerCommandMapSerialized = this.serializeObject(playerCommandMap);
-        // console.log(playerCommandMapSerialized);
-
         this.connectionsDo((connection) =>
-            connection.socket.emit('accumulatedCommands', playerCommandMapSerialized));
+            connection.send('accumulatedCommands', playerCommandMap));
     }
 
     public informGameOver() {
@@ -84,9 +77,5 @@ export default class CallCenter {
 
     private connectionsDo(fn: (connection: Connection) => void) {
         this.connections.forEach(fn);
-    }
-
-    private serializeObject(object: any) {
-        return JSON.stringify(object);
     }
 }

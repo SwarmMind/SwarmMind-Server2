@@ -1,24 +1,25 @@
-import Game from '../GameModule/Game';
-import Command from '../Commands/Command';
-import CallCenter from './CallCenter';
-import User from './User';
-import UserManager from './UserManager';
-
-import { Vector } from 'flatten-js';
+import {Vector} from 'flatten-js';
 import AttackCommand from '../Commands/AttackCommand';
+import Command from '../Commands/Command';
 import MoveCommand from '../Commands/MoveCommand';
-
+import Game from '../GameModule/Game';
+import CallCenter from '../OvermindModule/CallCenter';
+import User from '../OvermindModule/User';
+import UserManager from '../OvermindModule/UserManager';
 
 export default class Overmind {
-
     private roundIntervalID: number;
     private tickIntervalID: number;
     private game: Game;
     private callCenter: CallCenter;
 
+    private roundTime: number;
+
     constructor() {
         this.game = new Game();
         this.callCenter = new CallCenter(this);
+
+        this.roundTime = 6;
     }
 
     public playGame(width, height) {
@@ -27,8 +28,7 @@ export default class Overmind {
     }
 
     public initializeIntervals() {
-        this.roundIntervalID = this.setInterval(6, this.processRound);
-        this.tickIntervalID = this.setInterval(0.2, this.sendAccumulatedCommands);
+        this.roundIntervalID = this.setInterval(this.roundTime, this.processRound);
     }
 
     public restart() {
@@ -46,18 +46,26 @@ export default class Overmind {
 
         const playerCommands = this.getPlayerCommandMap(users);
 
-        const obj = {};
-        let attackCommands, moveCommands
+        const obj: any = {playerCommands: {}};
+        let attackCommands, moveCommands;
         for (const [playerID, commands] of playerCommands) {
             attackCommands = commands.filter((command) => command.type === 'attack');
             moveCommands = commands.filter((command) => command.type === 'move');
-            obj[playerID] = {
+            obj.playerCommands[playerID] = {
                 move: moveCommands.map((command) => command.direction),
                 attack: attackCommands.map((command) => command.direction),
             };
         }
 
+        obj.numberOfGivenCommands = UserManager.givenCommandCount();
+        obj.maxNumberOfCommands = this.getMaxNumberOfCommands(users);
+        console.log(obj);
         this.callCenter.sendAccumulatedCommands(obj);
+    }
+
+
+    private getMaxNumberOfCommands(users) {
+        return users.length * this.game.playerNumber;
     }
 
     private getPlayerCommandMap(users: User[]) {
@@ -78,14 +86,20 @@ export default class Overmind {
     }
 
     // TODO: Outsource to a static class or something? It isn't really Overmind specific.
-    private accumulateVectors(vectors: Vector[]){
-        return vectors.reduce((accumulator, current) =>
-            this.addVectors(accumulator, current.direction), new Vector(0, 0))
+    private accumulateVectors(vectors: Vector[]) {
+        const sum = vectors.reduce((accumulator, current) =>
+            this.addVectors(accumulator, current.direction), new Vector(0, 0));
+
+        if (sum.length > 1) {
+            return sum.normalize();
+        } else {
+            return sum;
+        }
     }
 
     // TODO: Maybe outsource this to User class?
     private changeUserWeighting(user: User, playerID: number, command: Command) {
-        if(command === null){
+        if (command === null) {
             const userCommand = user.commands.get(playerID);
             user.changeWeightBy(userCommand.calculateDifference(command));
         }
@@ -103,28 +117,26 @@ export default class Overmind {
         for (const [playerID, commands] of playerCommands) {
             generatedCommand = null;
 
-            if(commands.length > 0) {
+            if (commands.length > 0) {
                 attackCommands = commands.filter((command) => command.type === 'attack');
                 moveCommands = commands.filter((command) => command.type === 'move');
 
-                // TODO: We should think of executing both, attack and movement
                 if (attackCommands.length >= moveCommands.length) {
                     direction = this.accumulateVectors(attackCommands);
                     generatedCommand = new AttackCommand(playerID, direction);
-                }
-                else {
+                } else {
                     direction = this.accumulateVectors(moveCommands);
                     generatedCommand = new MoveCommand(playerID, direction);
                 }
 
-                for(const user of users) {
+                for (const user of users) {
                     this.changeUserWeighting(user, playerID, generatedCommand);
                 }
 
                 generatedCommands.push(generatedCommand);
             }
         }
-        // console.log(generatedCommands)
+        // console.log(generatedCommands);
         return generatedCommands;
     }
 
@@ -133,10 +145,11 @@ export default class Overmind {
         const oldGameState = this.game.state;
         this.game.newRound(this.generateCommandsToBeExecuted());
         oldGameState.commands = this.game.lastExecutedCommands.map((command) => command.serialize());
+
         this.callCenter.sendNewRoundInformations(oldGameState);
         UserManager.clearAllUserCommands();
 
-        if(this.game.isOver()) {
+        if (this.game.isOver()) {
             this.callCenter.informGameOver();
             clearInterval(this.roundIntervalID);
             clearInterval(this.tickIntervalID);
@@ -144,8 +157,8 @@ export default class Overmind {
         }
     }
 
-    public takeCommand(command: Command, user: User){
-        if(this.game.isValidCommand(command)){
+    public takeCommand(command: Command, user: User) {
+        if (this.game.isValidCommand(command)) {
             user.takeCommand(command);
             this.sendAccumulatedCommands();
         }
@@ -160,6 +173,9 @@ export default class Overmind {
     }
 
     public get initState() {
-        return this.game.initState;
+        const state = this.game.initState;
+        Object.assign(state.config, {roundTime: this.roundTime});
+
+        return state;
     }
 }

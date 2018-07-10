@@ -14,7 +14,11 @@ export default class Connection {
         return this._user;
     }
 
-    public send(event: string, ...args){
-        this.socket.emit(event, ...args);
+    public send(event: string, args){
+        this.socket.emit(event, this.serialize(args));
+    }
+
+    private serialize(data): string {
+        return JSON.stringify(data);
     }
 }
