@@ -12,8 +12,8 @@ import Command from '../commands/Command';
 import DamageCommand from '../commands/DamageCommand';
 import MoveCommand from '../commands/MoveCommand';
 import NullCommand from '../commands/NullCommand';
+import SpawnCommand from '../commands/SpawnCommand';
 import MapObject from './MapObject';
-import SpawnCommand from '../commands/SpawnCommand'
 import Physics from './Physics';
 
 function randomNumber(min, max) {
@@ -137,6 +137,7 @@ export default class Game {
     private executeAndStoreCommands(commands: Command[]) {
         const movementCommands = [];
         const otherCommands = [];
+        const commandMap = new Map();
 
         for (const command of commands) {
             if (command.type === 'move') {
@@ -153,13 +154,19 @@ export default class Game {
         }
         for (const command of movementCommands) {
             physics.addMovement(command.mapObjectID, command.direction);
-            this._lastExecutedCommands.push(...command);
+            commandMap[command.mapObjectID] = command;
         }
         physics.simulate();
         const newPositions = physics.positions;
         for (const [id, pos] of newPositions) {
             const obj = this.store.getObjectByID(id);
+            const oldPos = obj.position;
             obj.position = pos;
+            commandMap[id].direction = new Vector(pos.x - oldPos.x, pos.y - oldPos.y);
+        }
+
+        for (const [id, command] of commandMap) {
+            this._lastExecutedCommands.push(command as Command);
         }
 
 
@@ -188,12 +195,12 @@ export default class Game {
     }
 
     public addPlayer(x, y) {
-        let player = this.store.createPlayer(x, y, (point) => new Circle(point, 0.5));
+        const player = this.store.createPlayer(x, y, (point) => new Circle(point, 0.5));
         this.executeAndStoreCommand(new SpawnCommand(player.ID));
     }
 
     public addNPC(x, y) {
-        let npc = this.store.createNPC(x, y, (point) => new Circle(point, 0.5));
+        const npc = this.store.createNPC(x, y, (point) => new Circle(point, 0.5));
         this.executeAndStoreCommand(new SpawnCommand(npc.ID));
     }
 
@@ -328,7 +335,7 @@ export default class Game {
         return possibleTargets;
     }
 
-    public resolveID(mapObjectID: number): MapObject{
+    public resolveID(mapObjectID: number): MapObject {
         return this.store.getObjectByID(mapObjectID);
     }
 

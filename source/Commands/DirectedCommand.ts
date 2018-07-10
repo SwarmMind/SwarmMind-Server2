@@ -13,6 +13,10 @@ export default class DirectedCommand extends Command{
         return this._direction;
     }
 
+    public set direction(newDirection: Vector) {
+        this._direction = newDirection;
+    }
+
     public applyWeight(weight: number) {
         this._direction = this._direction.multiply(weight);
     }
