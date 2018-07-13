@@ -67,7 +67,7 @@ export default class Overmind {
 
         obj.numberOfGivenCommands = this.givenCommandCount;
         obj.maxNumberOfCommands = this.maxNumberOfCommands();
-        console.log(obj);
+        // console.log(obj);
         return obj;
     }
 
@@ -140,7 +140,7 @@ export default class Overmind {
                 generatedCommands.push(generatedCommand);
             }
         }
-        console.log(generatedCommands);
+        // console.log(generatedCommands);
         return generatedCommands;
     }
 

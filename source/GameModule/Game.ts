@@ -5,6 +5,7 @@ import World from './World';
 
 import { Box, Circle, Line, Point, Segment, Vector } from 'flatten-js';
 import BoxExtension from '../utilities/GeometryExtensions/BoxExtension';
+import CustomRay from '../utilities/GeometryExtensions/CustomRay';
 import Rectangle from '../utilities/GeometryExtensions/Rectangle';
 
 import AttackCommand from '../Commands/AttackCommand';
@@ -146,7 +147,9 @@ export default class Game {
         }
 
         for (const command of movementCommands) {
+            console.log(command);
             this.adjustMovementVector(command as DirectedCommand);
+            console.log(command);
             this.executeAndStoreCommand(command);
         }
 
@@ -290,7 +293,7 @@ export default class Game {
         const objectBox = mapObject.mapRepresentation.box;
 
         // Chose points to start the rays from
-        const directionNorm = movementCommand.direction.normalize();
+        const directionNorm = movementCommand.direction;
         const usedCorners = [];
         if (directionNorm.x < 0) {
             usedCorners.push(new Point(objectBox.xmin, objectBox.ymin));
@@ -318,11 +321,15 @@ export default class Game {
         const ray1 = new Line(usedCorners[0], directionNorm);
         const ray2 = new Line(usedCorners[1], directionNorm);
         const ray3 = new Line(usedCorners[2], directionNorm);
+        // const ray1 = new CustomRay(usedCorners[0], directionNorm);
+        // const ray2 = new CustomRay(usedCorners[1], directionNorm);
+        // const ray3 = new CustomRay(usedCorners[2], directionNorm);
 
         let distance = movementCommand.direction.length;
 
         const collidableObjects = this.store.mapObjects;
         for (const obstacle of collidableObjects) {
+
             if (obstacle !== mapObject) {
                 // Create segments
                 const obstacleBox = obstacle.mapRepresentation.box;
@@ -336,33 +343,22 @@ export default class Game {
                 segments.push(new Segment(c, d));
                 segments.push(new Segment(d, a));
 
-                // Raytracing
-                /*for (const [point, ray] of rays) {
+                for (let i = 0; i < 3; i++) {
                     for (const segment of segments) {
-                        const intersections = ray.intersect(segment);
+                        const intersections = ray1.intersect(segment);
+                        console.log('intersections for corner ' + i + ':');
+                        console.log(intersections);
                         if (intersections.length > 0) {
-                            distance = Math.min(distance, point.distanceTo(intersections[0]));
-                        }
-                    }
-                }*/
+                            for (const intersection of intersections) {
+                                const obstDist = usedCorners[i].distanceTo(intersection)[0];
+                                console.log('obstDist (of corner ' + i + '): ');
+                                console.log(usedCorners[i].distanceTo(intersection));
+                                if (obstDist > 0) {
+                                    distance = Math.min(distance, obstDist);
+                                }
+                            }
 
-                // TODO: Get this into one loop
-                for (const segment of segments) {
-                    const intersections = ray1.intersect(segment);
-                    if (intersections.length > 0) {
-                        distance = Math.min(distance, usedCorners[0].distanceTo(intersections[0]));
-                    }
-                }
-                for (const segment of segments) {
-                    const intersections = ray2.intersect(segment);
-                    if (intersections.length > 0) {
-                        distance = Math.min(distance, usedCorners[1].distanceTo(intersections[0]));
-                    }
-                }
-                for (const segment of segments) {
-                    const intersections = ray3.intersect(segment);
-                    if (intersections.length > 0) {
-                        distance = Math.min(distance, usedCorners[2].distanceTo(intersections[0]));
+                        }
                     }
                 }
             }

@@ -21,7 +21,7 @@ class Bot{
         this.io = sio(`${address}:${port}`);
         this.io.on('state', (state) => {
             const parsedState = JSON.parse(state);
-            console.log(parsedState);
+            // console.log(parsedState);
             this.generateAction(parsedState);
         })
     }
@@ -37,7 +37,7 @@ class Bot{
     public generateAction(state) {
         for(const player of state.players){
             let actions = this.commandFor(player, state.npcs);
-            console.log('actions: ', actions);
+            // console.log('actions: ', actions);
             this.sendCommand(actions);
         }
     }
