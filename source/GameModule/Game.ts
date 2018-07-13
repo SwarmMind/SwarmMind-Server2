@@ -318,12 +318,12 @@ export default class Game {
         rays[usedCorners[0]] = new Line(usedCorners[0], directionNorm);
         rays[usedCorners[1]] = new Line(usedCorners[1], directionNorm);
         rays[usedCorners[2]] = new Line(usedCorners[2], directionNorm);
-        const ray1 = new Line(usedCorners[0], directionNorm);
-        const ray2 = new Line(usedCorners[1], directionNorm);
-        const ray3 = new Line(usedCorners[2], directionNorm);
-        // const ray1 = new CustomRay(usedCorners[0], directionNorm);
-        // const ray2 = new CustomRay(usedCorners[1], directionNorm);
-        // const ray3 = new CustomRay(usedCorners[2], directionNorm);
+        // const ray1 = new Line(usedCorners[0], directionNorm);
+        // const ray2 = new Line(usedCorners[1], directionNorm);
+        // const ray3 = new Line(usedCorners[2], directionNorm);
+        const ray1 = new CustomRay(usedCorners[0], directionNorm);
+        const ray2 = new CustomRay(usedCorners[1], directionNorm);
+        const ray3 = new CustomRay(usedCorners[2], directionNorm);
 
         let distance = movementCommand.direction.length;
 
