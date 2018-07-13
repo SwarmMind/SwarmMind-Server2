@@ -3,7 +3,7 @@ import NPC from './NPC';
 import Player from './Player';
 import World from './World';
 
-import { Box, Circle, Line, Point, Vector } from 'flatten-js';
+import { Box, Circle, Line, Point, Segment, Vector } from 'flatten-js';
 import BoxExtension from '../utilities/GeometryExtensions/BoxExtension';
 import Rectangle from '../utilities/GeometryExtensions/Rectangle';
 
@@ -14,6 +14,7 @@ import MoveCommand from '../Commands/MoveCommand';
 import NullCommand from '../Commands/NullCommand';
 import MapObject from './MapObject';
 import SpawnCommand from '../Commands/SpawnCommand'
+import DirectedCommand from "../Commands/DirectedCommand";
 
 function randomNumber(min, max) {
     return Math.random() * (max - min) + min;
@@ -134,9 +135,23 @@ export default class Game {
     }
 
     private executeAndStoreCommands(commands: Command[]) {
-        // TODO: Maybe we should first execute the movement commands and then the shooting commands?
+        const movementCommands = [];
+        const otherCommands = [];
         for (const command of commands) {
-            this.executeAndStoreCommand( command);
+            if (command.type === 'move') {
+                movementCommands.push(command);
+            } else {
+                otherCommands.push(command);
+            }
+        }
+
+        for (const command of movementCommands) {
+            this.adjustMovementVector(command as DirectedCommand);
+            this.executeAndStoreCommand(command);
+        }
+
+        for (const command of otherCommands) {
+            this.executeAndStoreCommand(command);
         }
     }
 
@@ -174,18 +189,6 @@ export default class Game {
 
     public moveMapObject(mapObjectID: number, direction: Vector) {
         const mapObject = this.resolveID(mapObjectID);
-        console.log(mapObject, direction);
-
-        // TODO: We could make this much more efficient if we use a kd-tree or something,
-        // TODO: so that we do not need to check all objects.
-        // calculate possible collisions and edit direction vector
-        const collidableObjects = this.store.mapObjects;
-        for (const obstacle of collidableObjects) {
-            if (obstacle !== mapObject) {
-                direction = this.avoidCollision(mapObject, direction, obstacle);
-            }
-        }
-
         mapObject.moveIn(direction);
     }
 
@@ -269,7 +272,8 @@ export default class Game {
         }
 
         // TODO: At the moment The distance to the front orthogonal is used.
-        // TODO: It is better to create a line with p and direction and check for the point it hits the moving object.
+        // TODO: It is better to create a line with p and direction and check for the point,
+        // TODO: where it hits the moving object.
         let minD = direction.length + backDist * 2;
         const frontPositionVec = objectBB.centerVec.add(directionNormVec.multiply(backDist));
         const frontPosition = new Point(frontPositionVec.x, frontPositionVec.y);
@@ -279,6 +283,92 @@ export default class Game {
         }
 
         return directionNormVec.multiply(minD);
+    }
+
+    private adjustMovementVector(movementCommand: DirectedCommand) {
+        const mapObject = this.resolveID(movementCommand.mapObjectID);
+        const objectBox = mapObject.mapRepresentation.box;
+
+        // Chose points to start the rays from
+        const directionNorm = movementCommand.direction.normalize();
+        const usedCorners = [];
+        if (directionNorm.x < 0) {
+            usedCorners.push(new Point(objectBox.xmin, objectBox.ymin));
+            usedCorners.push(new Point(objectBox.xmin, objectBox.ymax));
+            if (directionNorm.y < 0) {
+                usedCorners.push(new Point(objectBox.xmax, objectBox.ymin));
+            } else {
+                usedCorners.push(new Point(objectBox.xmax, objectBox.ymax));
+            }
+        } else {
+            usedCorners.push(new Point(objectBox.xmax, objectBox.ymin));
+            usedCorners.push(new Point(objectBox.xmax, objectBox.ymax));
+            if (directionNorm.y < 0) {
+                usedCorners.push(new Point(objectBox.xmin, objectBox.ymin));
+            } else {
+                usedCorners.push(new Point(objectBox.xmin, objectBox.ymax));
+            }
+        }
+
+        // Create rays
+        const rays = new Map();
+        rays[usedCorners[0]] = new Line(usedCorners[0], directionNorm);
+        rays[usedCorners[1]] = new Line(usedCorners[1], directionNorm);
+        rays[usedCorners[2]] = new Line(usedCorners[2], directionNorm);
+        const ray1 = new Line(usedCorners[0], directionNorm);
+        const ray2 = new Line(usedCorners[1], directionNorm);
+        const ray3 = new Line(usedCorners[2], directionNorm);
+
+        let distance = movementCommand.direction.length;
+
+        const collidableObjects = this.store.mapObjects;
+        for (const obstacle of collidableObjects) {
+            if (obstacle !== mapObject) {
+                // Create segments
+                const obstacleBox = obstacle.mapRepresentation.box;
+                const a = new Point(obstacleBox.xmin, obstacleBox.xmin);
+                const b = new Point(obstacleBox.xmin, obstacleBox.xmax);
+                const c = new Point(obstacleBox.xmax, obstacleBox.xmax);
+                const d = new Point(obstacleBox.xmax, obstacleBox.xmin);
+                const segments = [];
+                segments.push(new Segment(a, b));
+                segments.push(new Segment(b, c));
+                segments.push(new Segment(c, d));
+                segments.push(new Segment(d, a));
+
+                // Raytracing
+                /*for (const [point, ray] of rays) {
+                    for (const segment of segments) {
+                        const intersections = ray.intersect(segment);
+                        if (intersections.length > 0) {
+                            distance = Math.min(distance, point.distanceTo(intersections[0]));
+                        }
+                    }
+                }*/
+
+                // TODO: Get this into one loop
+                for (const segment of segments) {
+                    const intersections = ray1.intersect(segment);
+                    if (intersections.length > 0) {
+                        distance = Math.min(distance, usedCorners[0].distanceTo(intersections[0]));
+                    }
+                }
+                for (const segment of segments) {
+                    const intersections = ray2.intersect(segment);
+                    if (intersections.length > 0) {
+                        distance = Math.min(distance, usedCorners[1].distanceTo(intersections[0]));
+                    }
+                }
+                for (const segment of segments) {
+                    const intersections = ray3.intersect(segment);
+                    if (intersections.length > 0) {
+                        distance = Math.min(distance, usedCorners[2].distanceTo(intersections[0]));
+                    }
+                }
+            }
+        }
+
+        movementCommand.direction = directionNorm.multiply(distance);
     }
 
     private findPossibleTarget(position: Point, direction: Vector, isPossibleTarget) {
