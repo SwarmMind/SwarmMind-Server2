@@ -68,8 +68,12 @@ export default abstract class MapObject {
         if (intersection.size > 0) { return true; }
     }
 
-    public moveIn(direction: Vector) {
-        this.position = this.position.translate(direction.multiply(this.movementRange));
+    public moveIn(direction: Vector, modDistance = true) {
+        if (modDistance) {
+            this.position = this.position.translate(direction.multiply(this.movementRange));
+        } else {
+            this.position = this.position.translate(direction);
+        }
     }
 
     public distanceTo(mapObject: MapObject): number {   // distanceTo returns an Array

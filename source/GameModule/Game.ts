@@ -59,7 +59,8 @@ export default class Game {
     public start(width, height) {
         this._round = 0;
         this._world = new World(width, height);
-        this.addPlayer(10, 10);
+        this.addPlayer(9.5, 9.5);
+        // this.addPlayer(10, 10);
         this.addPlayer(11, 10);
         this.addPlayer(10, 11);
     }
@@ -148,9 +149,9 @@ export default class Game {
 
         for (const command of movementCommands) {
             console.log(command);
-            this.adjustMovementVector(command as DirectedCommand);
-            console.log(command);
-            this.executeAndStoreCommand(command);
+            const adjustedCommand = this.adjustMovementVector(command as DirectedCommand);
+            console.log(adjustedCommand);
+            this.executeAndStoreCommand(adjustedCommand);
         }
 
         for (const command of otherCommands) {
@@ -288,17 +289,18 @@ export default class Game {
         return directionNormVec.multiply(minD);
     }
 
-    private adjustMovementVector(movementCommand: DirectedCommand) {
+    private adjustMovementVector(movementCommand: DirectedCommand, pufferDist = 0.01): DirectedCommand {
+        let collision = false;
         const mapObject = this.resolveID(movementCommand.mapObjectID);
         const objectBox = mapObject.mapRepresentation.box;
 
         // Chose points to start the rays from
-        const directionNorm = movementCommand.direction;
+        const direction = movementCommand.direction;
         const usedCorners = [];
-        if (directionNorm.x < 0) {
+        if (direction.x < 0) {
             usedCorners.push(new Point(objectBox.xmin, objectBox.ymin));
             usedCorners.push(new Point(objectBox.xmin, objectBox.ymax));
-            if (directionNorm.y < 0) {
+            if (direction.y < 0) {
                 usedCorners.push(new Point(objectBox.xmax, objectBox.ymin));
             } else {
                 usedCorners.push(new Point(objectBox.xmax, objectBox.ymax));
@@ -306,7 +308,7 @@ export default class Game {
         } else {
             usedCorners.push(new Point(objectBox.xmax, objectBox.ymin));
             usedCorners.push(new Point(objectBox.xmax, objectBox.ymax));
-            if (directionNorm.y < 0) {
+            if (direction.y < 0) {
                 usedCorners.push(new Point(objectBox.xmin, objectBox.ymin));
             } else {
                 usedCorners.push(new Point(objectBox.xmin, objectBox.ymax));
@@ -315,15 +317,20 @@ export default class Game {
 
         // Create rays
         const rays = new Map();
-        rays[usedCorners[0]] = new Line(usedCorners[0], directionNorm);
-        rays[usedCorners[1]] = new Line(usedCorners[1], directionNorm);
-        rays[usedCorners[2]] = new Line(usedCorners[2], directionNorm);
+        rays[usedCorners[0]] = new Line(usedCorners[0], direction);
+        rays[usedCorners[1]] = new Line(usedCorners[1], direction);
+        rays[usedCorners[2]] = new Line(usedCorners[2], direction);
         // const ray1 = new Line(usedCorners[0], directionNorm);
         // const ray2 = new Line(usedCorners[1], directionNorm);
         // const ray3 = new Line(usedCorners[2], directionNorm);
-        const ray1 = new CustomRay(usedCorners[0], directionNorm);
-        const ray2 = new CustomRay(usedCorners[1], directionNorm);
-        const ray3 = new CustomRay(usedCorners[2], directionNorm);
+        const ray1 = new CustomRay(usedCorners[0], direction);
+        const ray2 = new CustomRay(usedCorners[1], direction);
+        const ray3 = new CustomRay(usedCorners[2], direction);
+
+        const usedRays = [];
+        usedRays.push(ray1);
+        usedRays.push(ray2);
+        usedRays.push(ray3);
 
         let distance = movementCommand.direction.length;
 
@@ -345,16 +352,17 @@ export default class Game {
 
                 for (let i = 0; i < 3; i++) {
                     for (const segment of segments) {
-                        const intersections = ray1.intersect(segment);
-                        console.log('intersections for corner ' + i + ':');
-                        console.log(intersections);
+                        const intersections = usedRays[i].intersect(segment);
+                        //console.log('intersections for corner ' + i + ':');
+                        //console.log(intersections);
                         if (intersections.length > 0) {
                             for (const intersection of intersections) {
                                 const obstDist = usedCorners[i].distanceTo(intersection)[0];
-                                console.log('obstDist (of corner ' + i + '): ');
-                                console.log(usedCorners[i].distanceTo(intersection));
-                                if (obstDist > 0) {
-                                    distance = Math.min(distance, obstDist);
+                                //console.log('obstDist (of corner ' + i + '): ');
+                                //console.log(usedCorners[i].distanceTo(intersection));
+                                if (obstDist < distance) {
+                                    distance = obstDist;
+                                    collision = true;
                                 }
                             }
 
@@ -363,8 +371,10 @@ export default class Game {
                 }
             }
         }
+        if (collision) { distance = distance - pufferDist; }
+        movementCommand.direction = direction.normalize().multiply(distance);
 
-        movementCommand.direction = directionNorm.multiply(distance);
+        return movementCommand;
     }
 
     private findPossibleTarget(position: Point, direction: Vector, isPossibleTarget) {
