@@ -370,7 +370,7 @@ export default class Game {
         return this.store.playerNumber;
     }
 
-    public get npcNumber(){
+    public get npcNumber() {
         return this.store.npcNumber;
     }
 }

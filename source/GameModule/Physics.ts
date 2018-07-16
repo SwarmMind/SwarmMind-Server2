@@ -69,6 +69,7 @@ export default class Physics {
 
     private createWorld() {
         const gravity = new b2Vec2(0, 0);
+        console.log(gravity);
         this.world = new b2World(gravity, true);
     }
 }
