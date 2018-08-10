@@ -13,4 +13,6 @@ export default class Blockade extends MapObject {
     public isTarget(mapObject: MapObject) {
         return true;
     }
+
+    public receiveDamage(amount: number) {}
 }

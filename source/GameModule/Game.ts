@@ -14,6 +14,7 @@ import MoveCommand from '../Commands/MoveCommand';
 import NullCommand from '../Commands/NullCommand';
 import MapObject from './MapObject';
 import SpawnCommand from '../Commands/SpawnCommand'
+import SpawnPoint from './SpawnPoint';
 
 function randomNumber(min, max) {
     return Math.random() * (max - min) + min;
@@ -25,6 +26,9 @@ export default class Game {
 
     private _round: number;
     private _lastExecutedCommands: Command[];
+
+    private npcSpawns: SpawnPoint[];
+    private playerSpawns: SpawnPoint[];
 
     constructor() {
         this.store = new FactoryStore();
@@ -57,9 +61,9 @@ export default class Game {
     public start(width, height) {
         this._round = 0;
         this._world = new World(width, height);
-        this.addPlayer(10, 10);
-        this.addPlayer(11, 10);
-        this.addPlayer(10, 11);
+        for (const playerSpawn of this.playerSpawns) {
+            playerSpawn.spawnObject();
+        }
     }
 
     public restart() {
@@ -110,22 +114,7 @@ export default class Game {
     }
 
     private spawnNPC() {
-        const direction = Math.floor(randomNumber(1, 5));
-        const positionXBorder = Math.random() * (this._world.width - 2) + 1;
-        const positionYBorder = Math.random() * (this._world.height - 2) + 1;
-
-        if (direction === 1) {
-            this.addNPC(positionXBorder, 1);
-        }
-        if (direction === 3) {
-            this.addNPC(positionXBorder, this._world.height - 1);
-        }
-        if (direction === 2) {
-            this.addNPC(1, positionYBorder);
-        }
-        if (direction === 4) {
-            this.addNPC(this._world.width - 1, positionYBorder);
-        }
+        this.npcSpawns[randomNumber(0, this.npcSpawns.length)].spawnObject();
     }
 
     private executeAndStoreCommand(command: Command) {
@@ -281,12 +270,12 @@ export default class Game {
         return directionNormVec.multiply(minD);
     }
 
-    private findPossibleTarget(position: Point, direction: Vector, isPossibleTarget) {
-        const line = new Line(position, position.translate(direction));
+    private findPossibleTarget(attacker: MapObject, direction: Vector) {
+        const line = new Line(attacker.position, attacker.position.translate(direction));
         const possibleTargets = [];
 
         for (const possibleTarget of this.store.mapObjects) {
-            if (isPossibleTarget(possibleTarget)) {
+            if (attacker.isTarget(possibleTarget)) {
                 if (line.intersect(possibleTarget.mapRepresentation).length > 0) {
                     possibleTargets.push(possibleTarget);
                 }
@@ -302,7 +291,7 @@ export default class Game {
 
     public attackInDirection(mapObjectID: number, direction: Vector) {
         const attacker = this.resolveID(mapObjectID);
-        const possibleTargets = this.findPossibleTarget(attacker.position, direction, attacker.isTarget.bind(attacker));
+        const possibleTargets = this.findPossibleTarget(attacker, direction);
         const target = this.findNearestMapObject(attacker, possibleTargets);
 
         if(target !== null) {
@@ -333,5 +322,13 @@ export default class Game {
 
     public get npcNumber(){
         return this.store.npcNumber;
+    }
+
+    public addNPCSpawnAt(x: number, y: number){
+        this.npcSpawns.push(new SpawnPoint(x, y, this, NPC));
+    }
+
+    public addPlayerSpawnAt(x: number, y: number){
+        this.playerSpawns.push(new SpawnPoint(x, y, this, Player));
     }
 }

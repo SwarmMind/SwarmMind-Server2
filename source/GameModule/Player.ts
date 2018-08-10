@@ -1,5 +1,6 @@
 import MapObject from './MapObject';
 import { playerData } from '../utilities/MapObjectData';
+import Game from './Game';
 
 
 export default class Player extends MapObject {
@@ -15,7 +16,7 @@ export default class Player extends MapObject {
         return true;
     }
 
-    public isTarget(mapObject: MapObject) {
-        return mapObject.isNPC();
+    static spawnIn(game: Game, x, y){
+        game.addPlayer(x, y);
     }
 }

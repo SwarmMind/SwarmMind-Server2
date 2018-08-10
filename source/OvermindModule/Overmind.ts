@@ -24,8 +24,17 @@ export default class Overmind {
         this.givenCommandCount = 0;
     }
 
-    public playGame(width, height) {
-        this.game.start(width, height);
+    public playGame(mapData) {
+        this.game.start(mapData.width, mapData.height);
+
+        for(const playerSpawn of mapData.playerSpawns){
+            this.game.addPlayerSpawnAt(playerSpawn.x, playerSpawn.y);
+        }
+
+        for(const npcSpawn of mapData.npcSpawns){
+            this.game.addNPCSpawnAt(npcSpawn.x, npcSpawn.y);
+        }
+
         this.initializeMainInterval();
     }
 

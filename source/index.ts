@@ -1,8 +1,6 @@
-// Error.stackTraceLimit = 200;
-
-
 import Overmind from './OvermindModule/Overmind';
+const mapData = JSON.parse(require('./map.json'));
 
 const overmind = new Overmind();
 
-overmind.playGame(20, 20);
+overmind.playGame(mapData);

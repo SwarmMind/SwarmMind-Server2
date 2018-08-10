@@ -1,4 +1,5 @@
 import { Point, Vector } from 'flatten-js';
+import Game from './Game';
 
 
 export default abstract class MapObject {
@@ -9,7 +10,7 @@ export default abstract class MapObject {
     protected _attackRange: number;
     protected _hitpoints: number;
 
-    constructor(private _ID: number, x: number, y: number, private _mapRepresentationCreator) {
+    constructor(private _ID: number, private x: number, private y: number, private _mapRepresentationCreator) {
         this._position = new Point(x, y);
 
         this.importStats(this.statsObject);
@@ -95,4 +96,6 @@ export default abstract class MapObject {
     public isDead() {
         return this._hitpoints <= 0;
     }
+
+    static spawnIn(game: Game, x, y){}
 }
