@@ -17,7 +17,7 @@ import SpawnCommand from '../Commands/SpawnCommand'
 import SpawnPoint from './SpawnPoint';
 
 function randomNumber(min, max) {
-    return Math.random() * (max - min) + min;
+    return Math.floor(Math.random() * (max - min) + min);
 }
 
 export default class Game {
@@ -27,8 +27,8 @@ export default class Game {
     private _round: number;
     private _lastExecutedCommands: Command[];
 
-    private npcSpawns: SpawnPoint[];
-    private playerSpawns: SpawnPoint[];
+    private npcSpawns: SpawnPoint[] = [];
+    private playerSpawns: SpawnPoint[] = [];
 
     constructor() {
         this.store = new FactoryStore();
@@ -53,6 +53,7 @@ export default class Game {
             config: {
                 width: this._world.width,
                 height: this._world.height,
+                blockades: this.store.blockades.map(blockade => blockade.serialize()),
             },
             state: this.state,
         };
@@ -151,6 +152,11 @@ export default class Game {
     public addNPC(x, y) {
         let npc = this.store.createNPC(x, y, (point) => new Circle(point, 0.5));
         this.executeAndStoreCommand(new SpawnCommand(npc.ID));
+    }
+
+    public addBlockade(x, y){
+        this.store.createBlockade(x, y,
+            (point) => new Box(point.x, point.y, point.x + 1, point.y + 1));
     }
 
     public removeMapObject(mapObject: MapObject) {
@@ -325,10 +331,10 @@ export default class Game {
     }
 
     public addNPCSpawnAt(x: number, y: number){
-        this.npcSpawns.push(new SpawnPoint(x, y, this, NPC));
+        this.npcSpawns.push(new SpawnPoint(x + 0.5, y + 0.5, this, NPC));
     }
 
     public addPlayerSpawnAt(x: number, y: number){
-        this.playerSpawns.push(new SpawnPoint(x, y, this, Player));
+        this.playerSpawns.push(new SpawnPoint(x + 0.5, y + 0.5, this, Player));
     }
 }

@@ -25,8 +25,6 @@ export default class Overmind {
     }
 
     public playGame(mapData) {
-        this.game.start(mapData.width, mapData.height);
-
         for(const playerSpawn of mapData.playerSpawns){
             this.game.addPlayerSpawnAt(playerSpawn.x, playerSpawn.y);
         }
@@ -35,6 +33,11 @@ export default class Overmind {
             this.game.addNPCSpawnAt(npcSpawn.x, npcSpawn.y);
         }
 
+        for(const blockade of mapData.blockades){
+            this.game.addBlockade(blockade.x, blockade.y);
+        }
+
+        this.game.start(mapData.width, mapData.height);
         this.initializeMainInterval();
     }
 

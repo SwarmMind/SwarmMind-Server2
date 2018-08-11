@@ -4,6 +4,7 @@ import NPC from './NPC';
 import Player from './Player';
 
 import { Circle } from 'flatten-js';
+import Blockade from './Blockade';
 
 
 export default class FactoryStore {
@@ -23,12 +24,20 @@ export default class FactoryStore {
         return this._mapObjects.npcs;
     }
 
+    public get blockades() {
+        return this._mapObjects.blockades;
+    }
+
     public get playerNumber() {
         return this.players.length;
     }
 
     public get npcNumber() {
         return this.players.length;
+    }
+
+    public get blockadesNumber() {
+        return this.blockades.length;
     }
 
     public get mapObjects() {
@@ -66,6 +75,10 @@ export default class FactoryStore {
      */
     public createPlayer(x: number, y: number, representationCreator): Player {
         return this.createMapObject(x, y, Player, 'addPlayer', representationCreator);
+    }
+
+    public createBlockade(x: number, y: number, representationCreator): Blockade {
+        return this.createMapObject(x, y, Blockade, 'addBlockade', representationCreator);
     }
 
     /**

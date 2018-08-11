@@ -1,16 +1,19 @@
 import MapObject from './MapObject';
 import NPC from './NPC';
 import Player from './Player';
+import Blockade from './Blockade';
 
 
 export default class MapObjectStore {
     private objects: Map<number, MapObject>;
     private _players: Set<Player>;
     private _npcs: Set<NPC>;
+    private _blockades: Set<Blockade>;
 
     constructor() {
         this._npcs = new Set();
         this._players = new Set();
+        this._blockades = new Set();
         this.objects = new Map();
     }
 
@@ -20,6 +23,10 @@ export default class MapObjectStore {
 
     public get npcs() {
         return Array.from(this._npcs);
+    }
+
+    public get blockades() {
+        return Array.from(this._blockades);
     }
 
     public get mapObjects() {
@@ -32,6 +39,10 @@ export default class MapObjectStore {
 
     public addNPC(npc: NPC) {
         this.addTo(this._npcs, npc);
+    }
+
+    public addBlockade(npc: NPC) {
+        this.addTo(this._blockades, npc);
     }
 
     private removeFrom(set: Set<MapObject>, mapObject: MapObject) {
@@ -47,12 +58,20 @@ export default class MapObjectStore {
         this.removeFrom(this._npcs, npc);
     }
 
+    public removeBlockade(blockade: Blockade){
+        this.removeFrom(this._blockades, blockade);
+    }
+
     public remove(ID: number) {
         const mapObject = this.getByID(ID);
 
         if (mapObject.isPlayer()) {
             this.removePlayer(mapObject as Player);
-        } else {
+        }
+        else if(mapObject.isBlockade()) {
+            this.removeBlockade(mapObject as Blockade);
+        }
+        else{
             this.removeNPC(mapObject as NPC);
         }
     }
