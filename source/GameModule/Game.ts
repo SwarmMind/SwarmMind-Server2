@@ -277,11 +277,12 @@ export default class Game {
     }
 
     private findPossibleTarget(attacker: MapObject, direction: Vector) {
+        if(attacker === null) return []; // TODO why do I need this
         const line = new Line(attacker.position, attacker.position.translate(direction));
         const possibleTargets = [];
 
-        for (const possibleTarget of this.store.mapObjects) {
-            if (attacker.isTarget(possibleTarget)) {
+        for (const possibleTarget of this.store.mapObjects.filter(x => !x.isBlockade())) { // TODO change this
+            if (attacker.isTarget(possibleTarget) && attacker.ID !== possibleTarget.ID) {
                 if (line.intersect(possibleTarget.mapRepresentation).length > 0) {
                     possibleTargets.push(possibleTarget);
                 }
@@ -301,6 +302,7 @@ export default class Game {
         const target = this.findNearestMapObject(attacker, possibleTargets);
 
         if(target !== null) {
+            console.log(`====> ${attacker.ID} attacks ${target.ID}`);
             return new DamageCommand(attacker, target);
         }
     }

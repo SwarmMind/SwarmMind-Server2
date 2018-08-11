@@ -16,6 +16,10 @@ export default class Player extends MapObject {
         return true;
     }
 
+    public isTarget() {
+        return true;
+    }
+
     static spawnIn(game: Game, x, y){
         game.addPlayer(x, y);
     }

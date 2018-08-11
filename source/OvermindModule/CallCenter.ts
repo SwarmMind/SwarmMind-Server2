@@ -25,7 +25,7 @@ export default class CallCenter {
             const user = UserManager.registerNewUser();
             const connection = new Connection(socket, user);
             this.connections.push(connection);
-            console.log('init: ', this.overmind.initState.config.blockades);
+
             connection.send('initState', this.overmind.initState);
             this.sendAccumulatedCommands();
 
