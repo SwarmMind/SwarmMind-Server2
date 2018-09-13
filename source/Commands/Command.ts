@@ -3,12 +3,14 @@ import Game from '../GameModule/Game';
 export default abstract class Command {
     private readonly _mapObjectID: number;
     private implication: Command;
+    private implications: Array<Command>;
     protected _type: string;
 
     constructor(mapObjectID: number) {
         this._mapObjectID = mapObjectID;
 
-        this.implication  = null;
+        // this.implication  = null;
+        this.implications = [];
 
         this._type = 'abstractCommand';
     }
@@ -26,10 +28,11 @@ export default abstract class Command {
     }
 
     public implicate(implication: Command) {
-        this.implication = implication;
+        // this.implication = implication;
+        this.implications.push(implication);
     }
 
-    protected executionFunction(game: Game): void | Command {}
+    protected executionFunction(game: Game): void | Command | Array<Command> {}
 
     public calculateDifference(command: Command): number { return 0; }
 
@@ -37,8 +40,16 @@ export default abstract class Command {
         const implication = this.executionFunction(game);
 
         if(implication) {
-            this.implication = implication;
-            this.implication.execute(game);
+            if (implication instanceof Array) {
+                this.implications = this.implications.concat(implication);
+            } else {
+                this.implications.push(implication);
+            }
+            for (const imp of this.implications) {
+                imp.execute(game);
+            }
+            // this.implication = implication;
+            // this.implication.execute(game);
         }
     }
 
@@ -46,8 +57,11 @@ export default abstract class Command {
 
     *[Symbol.iterator]() {
         yield this;
-        if(this.implication !== null) {
+        /*if(this.implication !== null) {
             yield* this.implication;
+        }*/
+        for (const implication of this.implications) {
+            yield* implication;
         }
     }
 }

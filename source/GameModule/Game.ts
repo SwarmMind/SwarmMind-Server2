@@ -16,6 +16,7 @@ import NullCommand from '../Commands/NullCommand';
 import MapObject from './MapObject';
 import SpawnCommand from '../Commands/SpawnCommand'
 import DirectedCommand from "../Commands/DirectedCommand";
+import AmountedDamageCommand from "../Commands/AmountedDamageCommand";
 
 function randomNumber(min, max) {
     return Math.random() * (max - min) + min;
@@ -398,12 +399,59 @@ export default class Game {
 
     public attackInDirection(mapObjectID: number, direction: Vector) {
         const attacker = this.resolveID(mapObjectID);
+
+        if (attacker instanceof Player) {
+            return this.attackInDirectionShootgun(attacker, direction);
+        }
+
         const possibleTargets = this.findPossibleTarget(attacker.position, direction, attacker.isTarget.bind(attacker));
         const target = this.findNearestMapObject(attacker, possibleTargets);
 
         if(target !== null) {
             return new DamageCommand(attacker, target);
         }
+    }
+
+    private attackInDirectionShootgun(attacker: Player, direction: Vector) {
+        const additionalRaysPerSide = Math.floor((attacker.shootingRays - 1)/2);
+        const rayAngle = attacker.rayAngle;
+        const damagePerRay = attacker.damagePerRay;
+        const maxDistance = attacker.maxShootDistance;
+
+        const rayVectors = [];
+        rayVectors.push(direction);
+
+        // Create additional rays
+        for (let i = 1; i <= additionalRaysPerSide; i++) {
+            const positiveRay = direction.rotate((i * rayAngle * Math.PI) / 360);
+            const negativeRay = direction.rotate(-((i * rayAngle * Math.PI) / 360));
+            rayVectors.push(positiveRay);
+            rayVectors.push(negativeRay);
+        }
+
+        // Find target for every ray
+        const enemysToDamage: Map<MapObject, number> = new Map();
+
+        for (let i = 0; i < rayVectors.length; i++) {
+            const possibleTargets = this.findPossibleTarget(attacker.position, rayVectors[i], attacker.isTarget.bind(attacker));
+            const target = this.findNearestMapObject(attacker, possibleTargets);
+
+            if(target !== null && target.distanceTo(attacker) < maxDistance) {
+                if(enemysToDamage.has(target)) {
+                    const oldDamage = enemysToDamage.get(target);
+                    enemysToDamage.set(target, oldDamage + damagePerRay);
+                }
+            }
+        }
+
+        // Create damage command for every ray
+        const damageCommands: Array<AmountedDamageCommand> = [];
+
+        for (const [target, amount] of enemysToDamage) {
+            damageCommands.push(new AmountedDamageCommand(attacker, target, Math.floor(amount)));
+        }
+
+        return damageCommands;
     }
 
     public killMapObject(mapObjectID: number) {

@@ -42,7 +42,7 @@ export default abstract class MapObject {
     }
 
     public serialize() {
-        return {ID: this.ID, x: this._position.x, y: this._position.y};
+        return {ID: this.ID, x: this._position.x, y: this._position.y, HP: this._hitpoints};
     }
 
     public get mapRepresentation() {
@@ -86,6 +86,10 @@ export default abstract class MapObject {
 
     public attack(mapObject: MapObject) {
         mapObject.receiveDamage(this._attackStrength);
+    }
+
+    public attackAmounted(mapObject: MapObject, amount: number) {
+        mapObject.receiveDamage(amount);
     }
 
     public isInAttackRange(mapObject: MapObject): boolean {

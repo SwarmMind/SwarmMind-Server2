@@ -175,6 +175,9 @@ export default class Overmind {
     }
 
     public get initState() {
+        // TODO: Es wäre gut, wenn wir noch Base-Stats wie z.b. die Breite des Shootgunkegels etc. mitschicken,
+        // TODO: damit wir sie jederzeit serverseitig anpassen können.
+
         const state = this.game.initState;
         Object.assign(state.config, {
             roundTime: this.roundTime,
