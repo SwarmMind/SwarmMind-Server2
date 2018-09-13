@@ -146,12 +146,12 @@ export default class Game {
 
     public addPlayer(x, y) {
         let player = this.store.createPlayer(x, y, (point) => new Circle(point, 0.5));
-        this.executeAndStoreCommand(new SpawnCommand(player.ID));
+        this.executeAndStoreCommand(new SpawnCommand(player));
     }
 
     public addNPC(x, y) {
         let npc = this.store.createNPC(x, y, (point) => new Circle(point, 0.5));
-        this.executeAndStoreCommand(new SpawnCommand(npc.ID));
+        this.executeAndStoreCommand(new SpawnCommand(npc));
     }
 
     public addBlockade(x, y){
