@@ -85,7 +85,7 @@ export default class Overmind {
 
 
     private maxNumberOfCommands() {
-        return UserManager.users.length * this.game.playerNumber;
+        return this.callCenter.userCount * this.game.playerNumber;
     }
 
     private getPlayerCommandMap(users: User[]) {
@@ -177,8 +177,8 @@ export default class Overmind {
     public takeCommand(command: Command, user: User) {
         if (this.game.isValidCommand(command)) {
             user.takeCommand(command);
-            this.givenCommandCount++;
             this.callCenter.sendAccumulatedCommands();
+            this.givenCommandCount++;
         }
 
         if(this.givenCommandCount == this.maxNumberOfCommands()){

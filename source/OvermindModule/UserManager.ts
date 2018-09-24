@@ -23,6 +23,10 @@ export default class UserManager {
         return Array.from(this._users);
     }
 
+    static get userCount(){
+        return UserManager.users.length;
+    }
+
     static clearAllUserCommands() {
         for(const user of this._users) {
             user.clearCommands();

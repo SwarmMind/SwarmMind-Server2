@@ -32,7 +32,9 @@ export default class CallCenter {
             socket.on('command', (unitID, type, direction) => {
                 console.log('New command: Unit #' + unitID + ' has to ' + type + ' in direction ' + direction);
 
-                this.overmind.takeCommand(CommandBuilder.build(type, parseInt(unitID), JSON.parse(direction)), user);
+                const command = CommandBuilder.build(type, parseInt(unitID), JSON.parse(direction));
+
+                this.overmind.takeCommand(command, user);
             });
 
             socket.on('chat', (userName, text, position) => {
@@ -74,6 +76,10 @@ export default class CallCenter {
         this.connectionsDo((connection) => connection.socket.emit('gameOver'));
 
         console.log('Game over');
+    }
+
+    public get userCount(){
+        return UserManager.userCount;
     }
 
     private connectionsDo(fn: (connection: Connection) => void) {
