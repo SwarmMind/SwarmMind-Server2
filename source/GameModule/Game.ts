@@ -174,17 +174,25 @@ export default class Game {
         // TODO: We could make this much more efficient if we use a kd-tree or something,
         // TODO: so that we do not need to check all objects.
         // calculate possible collisions and edit direction vector
-        const collidableObjects = this.store.mapObjects;
+       /* const collidableObjects = this.store.mapObjects;
         for (const obstacle of collidableObjects) {
             if (obstacle !== mapObject) {
                 direction = this.avoidCollision(mapObject, direction, obstacle);
             }
-        }
+        }*/
 
         mapObject.moveIn(direction);
     }
 
-    private avoidCollision(object: MapObject, direction: Vector, obstacle: MapObject) {
+    private possibleMovementRange(mapObject: MapObject, direction: Vector){
+        let min = 1;
+        let max = 100;
+        let obstacles = [];
+
+
+    }
+
+    /*private avoidCollision(object: MapObject, direction: Vector, obstacle: MapObject) {
         if (direction.x === 0 && direction.y === 0) { return false; }
 
         const oldBB = object.mapRepresentation.box;
@@ -274,7 +282,7 @@ export default class Game {
         }
 
         return directionNormVec.multiply(minD);
-    }
+    }*/
 
     private findPossibleTarget(attacker: MapObject, direction: Vector) {
         if(attacker === null) return []; // TODO why do I need this
@@ -284,7 +292,11 @@ export default class Game {
         for (const possibleTarget of this.store.mapObjects.filter(x => !x.isBlockade())) { // TODO change this
             if (attacker.isTarget(possibleTarget) && attacker.ID !== possibleTarget.ID) {
                 if (line.intersect(possibleTarget.mapRepresentation).length > 0) {
-                    possibleTargets.push(possibleTarget);
+                    if((possibleTarget.position.x - attacker.position.x) / direction.x >= 0 &&
+                        (possibleTarget.position.y - attacker.position.y) / direction.y >= 0) {
+                        possibleTargets.push(possibleTarget);
+                    }
+
                 }
             }
         }
