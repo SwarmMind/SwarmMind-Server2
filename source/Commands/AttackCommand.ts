@@ -1,9 +1,9 @@
-import { Vector } from 'flatten-js';
+import Flatten from 'flatten-js';
 import Game from '../GameModule/Game';
 import DirectedCommand from './DirectedCommand';
 
 export default class AttackCommand extends DirectedCommand {
-    constructor(mapObjectID: number, direction: Vector) {
+    constructor(mapObjectID: number, direction: Flatten.Vector) {
         super(mapObjectID, direction);
 
         this._type = 'attack';

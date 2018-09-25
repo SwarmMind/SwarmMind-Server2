@@ -1,6 +1,6 @@
-import { Box, Point, Vector } from 'flatten-js';
+import Flatten from 'flatten-js';
 
-export default class BoxExtension extends Box {
+export default class BoxExtension extends Flatten.Box {
     public xmin: number;
     public xmax: number;
     public ymin: number;
@@ -10,14 +10,14 @@ export default class BoxExtension extends Box {
         super(xmin, ymin, xmax, ymax);
     }
 
-    public get center(): Point {
-        return new Point((this.xmin + this.xmax) / 2, (this.ymin + this.ymax) / 2);
+    public get center(): Flatten.Point {
+        return new Flatten.Point((this.xmin + this.xmax) / 2, (this.ymin + this.ymax) / 2);
     }
 
-    public get centerVec(): Vector {
-        return new Vector(
-            new Point(0, 0),
-            new Point((this.xmin + this.xmax) / 2, (this.ymin + this.ymax) / 2),
+    public get centerVec(): Flatten.Vector {
+        return new Flatten.Vector(
+            new Flatten.Point(0, 0),
+            new Flatten.Point((this.xmin + this.xmax) / 2, (this.ymin + this.ymax) / 2),
         );
     }
 

@@ -1,10 +1,10 @@
-import { Vector } from 'flatten-js';
+import Flatten from 'flatten-js';
 import Command from './Command';
 
 export default class DirectedCommand extends Command{
-    protected _direction: Vector;
+    protected _direction: Flatten.Vector;
 
-    constructor(mapObjectID: number, direction: Vector){
+    constructor(mapObjectID: number, direction: Flatten.Vector){
         super(mapObjectID);
         this._direction = direction;
     }
@@ -21,7 +21,7 @@ export default class DirectedCommand extends Command{
         if(this.type == command.type) {return -1}
         const directedCommand = command as DirectedCommand;
 
-        return this.direction.dot(directedCommand) / (this.direction.length * directedCommand.direction.length)
+        return this.direction.dot(directedCommand.direction) / (this.direction.length * directedCommand.direction.length)
     }
 
     public serialize() {

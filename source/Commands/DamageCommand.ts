@@ -2,14 +2,14 @@ import DirectedCommand from './DirectedCommand';
 import Game from '../GameModule/Game';
 import MapObject from '../GameModule/MapObject';
 
-import { Vector } from 'flatten-js';
+import Flatten from 'flatten-js';
 import DieCommand from './DieCommand';
 
 export default class DamageCommand extends DirectedCommand {
     private target: MapObject;
     private attacker: MapObject;
     constructor(attacker: MapObject, target: MapObject){
-        super(target.ID, new Vector(attacker.position, target.position));
+        super(target.ID, new Flatten.Vector(attacker.position, target.position));
 
         this.target = target;
         this.attacker = attacker;

@@ -1,4 +1,4 @@
-import {Vector} from 'flatten-js';
+import Flatten from 'flatten-js';
 import AttackCommand from '../Commands/AttackCommand';
 import Command from '../Commands/Command';
 import MoveCommand from '../Commands/MoveCommand';
@@ -6,12 +6,14 @@ import Game from '../GameModule/Game';
 import CallCenter from '../OvermindModule/CallCenter';
 import User from '../OvermindModule/User';
 import UserManager from '../OvermindModule/UserManager';
+import DirectedCommand from '../Commands/DirectedCommand';
 
 export default class Overmind {
     private roundIntervalID;
     private game: Game;
     private callCenter: CallCenter;
     private givenCommandCount: number;
+    private mapData;
 
     private roundTime: number;
     private roundStartTime: number;
@@ -25,19 +27,8 @@ export default class Overmind {
     }
 
     public playGame(mapData) {
-        for(const playerSpawn of mapData.playerSpawns){
-            this.game.addPlayerSpawnAt(playerSpawn.x, playerSpawn.y);
-        }
-
-        for(const npcSpawn of mapData.npcSpawns){
-            this.game.addNPCSpawnAt(npcSpawn.x, npcSpawn.y);
-        }
-
-        for(const blockade of mapData.blockades){
-            this.game.addBlockade(blockade.x, blockade.y);
-        }
-
-        this.game.start(mapData.width, mapData.height);
+        this.mapData = mapData;
+        this.game.start(this.mapData);
         this.initializeMainInterval();
     }
 
@@ -47,7 +38,7 @@ export default class Overmind {
     }
 
     public restart() {
-        this.game.restart();
+        this.game.restart(this.mapData);
         this.initializeMainInterval();
     }
 
@@ -57,8 +48,8 @@ export default class Overmind {
     }
 
     // TODO: Outsource to a static class or something? It isn't really Overmind specific.
-    private addVectors(vector1: Vector, vector2: Vector): Vector {
-        return new Vector(vector1.x + vector2.x, vector1.y + vector2.y);
+    private addVectors(vector1: Flatten.Vector, vector2: Flatten.Vector): Flatten.Vector {
+        return new Flatten.Vector(vector1.x + vector2.x, vector1.y + vector2.y);
     }
 
     public get accumulatedCommands() {
@@ -79,7 +70,7 @@ export default class Overmind {
 
         obj.numberOfGivenCommands = this.givenCommandCount;
         obj.maxNumberOfCommands = this.maxNumberOfCommands();
-        console.log(obj);
+        //console.log(obj);
         return obj;
     }
 
@@ -106,9 +97,9 @@ export default class Overmind {
     }
 
     // TODO: Outsource to a static class or something? It isn't really Overmind specific.
-    private accumulateVectors(vectors: Vector[]) {
+    private accumulateVectors(vectors: DirectedCommand[]) {
         const sum = vectors.reduce((accumulator, current) =>
-            this.addVectors(accumulator, current.direction), new Vector(0, 0));
+            this.addVectors(accumulator, current.direction), new Flatten.Vector(0, 0));
 
         return sum.length > 1 ? sum.normalize() : sum;
     }
@@ -152,7 +143,7 @@ export default class Overmind {
                 generatedCommands.push(generatedCommand);
             }
         }
-        console.log(generatedCommands);
+        //console.log(generatedCommands);
         return generatedCommands;
     }
 

@@ -1,10 +1,11 @@
-import { Box, Point, Vector } from 'flatten-js';
+import Flatten from 'flatten-js';
+
 
 export default class BoxWrapper {
-    private box: Box;
+    private box: Flatten.Box;
 
     public constructor(xmin: number, ymin: number, xmax: number, ymax: number) {
-        this.box = new Box(xmin, ymin, xmax, ymax);
+        this.box = new Flatten.Box(xmin, ymin, xmax, ymax);
     }
 
     public get xmin(): number {
@@ -23,14 +24,14 @@ export default class BoxWrapper {
         return this.box.ymax;
     }
 
-    public get center(): Point {
-        return new Point((this.box.xmin + this.box.xmax) / 2, (this.box.ymin + this.box.ymax) / 2);
+    public get center(): Flatten.Point {
+        return new Flatten.Point((this.box.xmin + this.box.xmax) / 2, (this.box.ymin + this.box.ymax) / 2);
     }
 
-    public get centerVec(): Vector {
-        return new Vector(
-            new Point(0, 0),
-            new Point((this.box.xmin + this.box.xmax) / 2, (this.box.ymin + this.box.ymax) / 2),
+    public get centerVec(): Flatten.Vector {
+        return new Flatten.Vector(
+            new Flatten.Point(0, 0),
+            new Flatten.Point((this.box.xmin + this.box.xmax) / 2, (this.box.ymin + this.box.ymax) / 2),
         );
     }
 

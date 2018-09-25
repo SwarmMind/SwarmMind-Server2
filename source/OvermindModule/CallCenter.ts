@@ -30,7 +30,7 @@ export default class CallCenter {
             this.sendAccumulatedCommands();
 
             socket.on('command', (unitID, type, direction) => {
-                console.log('New command: Unit #' + unitID + ' has to ' + type + ' in direction ' + direction);
+                //console.log('New command: Unit #' + unitID + ' has to ' + type + ' in direction ' + direction);
 
                 const command = CommandBuilder.build(type, parseInt(unitID), JSON.parse(direction));
 

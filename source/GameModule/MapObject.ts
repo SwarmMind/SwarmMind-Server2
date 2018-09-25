@@ -1,9 +1,9 @@
-import { Point, Vector } from 'flatten-js';
+import Flatten from 'flatten-js';
 import Game from './Game';
 
 
 export default abstract class MapObject {
-    private _position: Point;
+    private _position: Flatten.Point;
 
     protected _movementRange: number;
     protected _attackStrength: number;
@@ -11,7 +11,7 @@ export default abstract class MapObject {
     protected _hitpoints: number;
 
     constructor(private _ID: number, private x: number, private y: number, private _mapRepresentationCreator) {
-        this._position = new Point(x, y);
+        this._position = new Flatten.Point(x, y);
 
         this.importStats(this.statsObject);
     }
@@ -50,12 +50,16 @@ export default abstract class MapObject {
         return this._mapRepresentationCreator(this.position);
     }
 
-    public set position(value: Point) {
+    public simulateRepresentationAfterMoving(direction: Flatten.Vector, range: number){
+        return this._mapRepresentationCreator(this.position.translate(direction.multiply(this.movementRange * range)));
+    }
+
+    public set position(value: Flatten.Point) {
         this._position.x = value.x;
         this._position.y = value.y;
     }
 
-    public get position(): Point {
+    public get position(): Flatten.Point {
         return this._position;
     }
 
@@ -63,13 +67,7 @@ export default abstract class MapObject {
         return this._movementRange;
     }
 
-    public intersectsInRange(otherObject: MapObject, range: number): boolean {
-        if (this._position.distanceTo(otherObject._position) > range) { return false; }
-        const intersection = this.mapRepresentation.intersect(otherObject.mapRepresentation);
-        if (intersection.size > 0) { return true; }
-    }
-
-    public moveIn(direction: Vector) {
+    public moveIn(direction: Flatten.Vector) {
         this.position = this.position.translate(direction.multiply(this.movementRange));
     }
 

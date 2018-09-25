@@ -2,8 +2,6 @@ import MapObject from './MapObject';
 import MapObjectStore from './MapObjectStore';
 import NPC from './NPC';
 import Player from './Player';
-
-import { Circle } from 'flatten-js';
 import Blockade from './Blockade';
 
 

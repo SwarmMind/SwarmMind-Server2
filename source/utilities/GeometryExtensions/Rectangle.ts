@@ -1,7 +1,7 @@
-import {Box, Circle, Line, Point, Segment, Vector} from 'flatten-js';
+import Flatten from 'flatten-js';
 
 export default class Rectangle {
-    static pointSideRelationship(corner1: Point, corner2: Point, p: Point): number {
+    static pointSideRelationship(corner1: Flatten.Point, corner2: Flatten.Point, p: Flatten.Point): number {
         // Just builds the line equation of the two given corners and checks
         // if the given point is left or right of the line.
         // Maybe it cold be more efficient.
@@ -15,30 +15,30 @@ export default class Rectangle {
         return A * p.x + B * p.y + C;
     }
 
-    static segmentsCrossing(s1p1: Point, s1p2: Point, s2p1: Point, s2p2: Point): boolean {
-        const segment1 = new Segment(s1p1, s1p2);
-        const segment2 = new Segment(s2p1, s2p2);
+    static segmentsCrossing(s1p1: Flatten.Point, s1p2: Flatten.Point, s2p1: Flatten.Point, s2p2: Flatten.Point): boolean {
+        const segment1 = new Flatten.Segment(s1p1, s1p2);
+        const segment2 = new Flatten.Segment(s2p1, s2p2);
 
-        return segment1.intersect(segment2);
+        return segment1.intersect(segment2).length > 0;
     }
 
-    constructor(private _a: Point, private _b: Point, private _c: Point, private _d: Point) {
+    constructor(private _a: Flatten.Point, private _b: Flatten.Point, private _c: Flatten.Point, private _d: Flatten.Point) {
         // TODO: Make sure that the points build a rectangle
     }
 
-    public get a(): Point {
+    public get a(): Flatten.Point {
         return this._a;
     }
 
-    public get b(): Point {
+    public get b(): Flatten.Point {
         return this._b;
     }
 
-    public get c(): Point {
+    public get c(): Flatten.Point {
         return this._c;
     }
 
-    public get d(): Point {
+    public get d(): Flatten.Point {
         return this._d;
     }
 
@@ -58,18 +58,18 @@ export default class Rectangle {
         return Math.max(this._a.y, this._b.y, this._c.y, this._d.y);
     }
 
-    public get center(): Point {
-        return new Point((this.xmin + this.xmax) / 2, (this.ymin + this.ymax) / 2);
+    public get center(): Flatten.Point {
+        return new Flatten.Point((this.xmin + this.xmax) / 2, (this.ymin + this.ymax) / 2);
     }
 
-    public intersects(otherObject: Box | Circle | Line | Point | Rectangle): Point[] | boolean {
+    /*public intersects(otherObject: Flatten.Box | Flatten.Circle | Flatten.Line | Flatten.Point | Rectangle): Flatten.Point[] | boolean {
         switch (typeof otherObject) {
-            case Box:
+            case Flatten.Box:
                 return this.intersectsBox(otherObject);
             default:
                 return false;
         }
-    }
+    }*/
 
     /**
      * Checks, if the given box intersects the rectangle. The array contains corners of the box inside the rectangle
@@ -77,16 +77,16 @@ export default class Rectangle {
      * If the whole box lays inside the rectangle, the method returns an empty array.
      * If there is no intersection, the method returns false.
      */
-    public intersectsBox(box: Box): Point[] {
+    public intersectsBox(box: Flatten.Box): Flatten.Point[] {
         const points = [];
         // 1. Check for line crossing
         const rectPoints = [this._a, this._b, this._c, this._d, this._a];
 
         // Is the orientation right?
-        const boxA = new Point(box.xmin, box.ymin);
-        const boxB = new Point(box.xmax, box.ymin);
-        const boxC = new Point(box.xmax, box.ymax);
-        const boxD = new Point(box.xmin, box.ymax);
+        const boxA = new Flatten.Point(box.xmin, box.ymin);
+        const boxB = new Flatten.Point(box.xmax, box.ymin);
+        const boxC = new Flatten.Point(box.xmax, box.ymax);
+        const boxD = new Flatten.Point(box.xmin, box.ymax);
         const boxPoints = [boxA, boxB, boxC, boxD, boxA];
 
         for (let i = 0; i < 4; i++) {
@@ -127,7 +127,7 @@ export default class Rectangle {
         if (points.length > 0) { return points; }
     }
 
-    public containsPoint(point: Point): boolean {
+    public containsPoint(point: Flatten.Point): boolean {
         const D1 = Rectangle.pointSideRelationship(this._a, this._b, point);
         const D2 = Rectangle.pointSideRelationship(this._b, this._c, point);
         const D3 = Rectangle.pointSideRelationship(this._c, this._d, point);

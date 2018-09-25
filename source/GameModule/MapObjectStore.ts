@@ -29,7 +29,7 @@ export default class MapObjectStore {
         return Array.from(this._blockades);
     }
 
-    public get mapObjects() {
+    public get mapObjects(): MapObject[] {
         return Array.from(this.objects.values());
     }
 

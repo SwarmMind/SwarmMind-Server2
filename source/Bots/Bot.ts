@@ -1,6 +1,6 @@
 import sio = require('socket.io-client');
 
-import { Point, Vector } from 'flatten-js'
+import Flatten from 'flatten-js'
 
 function distance(x1, y1, x2, y2): number{
     return Math.sqrt((y2 - y1) ** 2 + (x2 - x1) ** 2);
@@ -57,14 +57,14 @@ class Angsthase extends Bot {
             }
         }
 
-        return [player.ID, 'move', JSON.stringify((new Vector(new Point(0, 0), new Point(-(nearestNPC.x - player.x), -(nearestNPC.y - player.y)))).normaliz())];
+        return [player.ID, 'move', JSON.stringify((new Flatten.Vector(new Flatten.Point(0, 0), new Flatten.Point(-(nearestNPC.x - player.x), -(nearestNPC.y - player.y)))).normalize())];
     }
 }
 
 class RandomWalker extends Bot {
     protected commandFor(player, npcList): [number, string, string]{
         console.log('command');
-        return [player.ID, 'move', JSON.stringify((new Vector(new Point(0, 0), new Point(Math.random() * randSign(), Math.random() * randSign()))).normalize())];
+        return [player.ID, 'move', JSON.stringify((new Flatten.Vector(new Flatten.Point(0, 0), new Flatten.Point(Math.random() * randSign(), Math.random() * randSign()))).normalize())];
     }
 }
 
