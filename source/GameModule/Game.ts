@@ -73,7 +73,7 @@ export default class Game {
 
     public start(mapData) {
         this._round = 0;
-        this._world = new World(mapData.width, mapData.height);
+        this._world = new World(mapData);
         this.initializeMapData(mapData);
         for (const playerSpawn of this.playerSpawns) {
             playerSpawn.spawnObject();
@@ -236,114 +236,22 @@ export default class Game {
         return direction.multiply(Math.min((max + min) / 100, 1));
     }
 
-    /*private avoidCollision(object: MapObject, direction: Vector, obstacle: MapObject) {
-        if (direction.x === 0 && direction.y === 0) { return false; }
-
-        const oldBB = object.mapRepresentation.box;
-        const objectBB = new BoxExtension(oldBB.xmin, oldBB.ymin, oldBB.xmax, oldBB.ymax);
-
-        // 1. Calculate the side and back distances for creating a not-axis-aligned BB of the movement
-        let corner;
-        let sideDist;
-        let backDist;
-        let orthogonalLine;
-        const movementLine = new Line(objectBB.center, direction.normalize());
-        const orthogonalUnitVec = direction.rotate90CW().normalize();
-
-        if (direction.y === 0) {
-            sideDist = objectBB.height / 2;
-            backDist = objectBB.width / 2;
-        } else if (direction.x === 0) {
-            sideDist = objectBB.width / 2;
-            backDist = objectBB.height / 2;
-        } else if (direction.x > 0) {
-            if (direction.y > 0) {
-                corner = new Point(objectBB.xmax, objectBB.ymin);
-                sideDist = corner.distanceTo(movementLine);
-                orthogonalLine = new Line(new Point(objectBB.xmax, objectBB.ymax), orthogonalUnitVec);
-                backDist = objectBB.center.distanceTo(orthogonalLine);
-            } else {
-                corner = new Point(objectBB.xmax, objectBB.ymax);
-                sideDist = corner.distanceTo(movementLine);
-                orthogonalLine = new Line(new Point(objectBB.xmax, objectBB.ymin), orthogonalUnitVec);
-                backDist = objectBB.center.distanceTo(orthogonalLine);
-            }
-        } else {
-            if (direction.y > 0) {
-                corner = new Point(objectBB.xmin, objectBB.ymin);
-                sideDist = corner.distanceTo(movementLine);
-                orthogonalLine = new Line(new Point(objectBB.xmin, objectBB.ymax), orthogonalUnitVec);
-                backDist = objectBB.center.distanceTo(orthogonalLine);
-            } else {
-                corner = new Point(objectBB.xmin, objectBB.ymax);
-                sideDist = corner.distanceTo(movementLine);
-                orthogonalLine = new Line(new Point(objectBB.xmin, objectBB.ymin), orthogonalUnitVec);
-                backDist = objectBB.center.distanceTo(orthogonalLine);
-            }
-        }
-
-        // 2. Calculate the four points of the not-axis-aligned BB of the movement
-        const directionNormVec = direction.normalize();
-        const sideVec = directionNormVec.rotate90CCW().multiply(sideDist);
-        const backVec = directionNormVec.invert().multiply(backDist);
-
-        const vecA = objectBB.centerVec.add(sideVec).add(backVec);
-        const vecB = objectBB.centerVec.add(sideVec.invert()).add(backVec);
-        const vecC = objectBB.centerVec.add(sideVec.invert()).add(direction).add(backVec.invert());
-        const vecD = objectBB.centerVec.add(sideVec).add(direction).add(backVec.invert());
-
-        const movementBB = new Rectangle(
-            new Point(vecA.x, vecA.y),
-            new Point(vecB.x, vecB.y),
-            new Point(vecC.x, vecC.y),
-            new Point(vecD.x, vecD.y),
-        );
-
-        // 3. Check for collision with obstacle and adjust the movement vector
-        const box = obstacle.mapRepresentation.box;
-        let points = movementBB.intersects(box);
-
-        if (points === false) { return direction; }
-
-        points = points as Point[];
-        if (points.length === 0) {
-            points = [
-                new Point(box.xmin, box.ymin),
-                new Point(box.xmax, box.ymin),
-                new Point(box.xmax, box.ymax),
-                new Point(box.xmin, box.ymax),
-            ];
-        }
-
-        // TODO: At the moment The distance to the front orthogonal is used.
-        // TODO: It is better to create a line with p and direction and check for the point it hits the moving object.
-        let minD = direction.length + backDist * 2;
-        const frontPositionVec = objectBB.centerVec.add(directionNormVec.multiply(backDist));
-        const frontPosition = new Point(frontPositionVec.x, frontPositionVec.y);
-
-        for (const p of points) {
-            minD = Math.min(minD, frontPosition.distanceTo(p));
-        }
-
-        return directionNormVec.multiply(minD);
-    }*/
-
     private findPossibleTarget(attacker: MapObject, direction: Flatten.Vector) {
         if(attacker === null) return []; // TODO why do I need this
         const line = new Flatten.Line(attacker.position, attacker.position.translate(direction));
         const possibleTargets = [];
 
-        for (const possibleTarget of this.store.mapObjects.filter(x => !x.isBlockade())) { // TODO change this
+        for (const possibleTarget of this.store.mapObjects) { // TODO change this
             if (attacker.isTarget(possibleTarget) && attacker.ID !== possibleTarget.ID) {
                 if (line.intersect(possibleTarget.mapRepresentation).length > 0) {
                     if((possibleTarget.position.x - attacker.position.x) / direction.x >= 0 &&
                         (possibleTarget.position.y - attacker.position.y) / direction.y >= 0) {
                         possibleTargets.push(possibleTarget);
                     }
-
                 }
             }
         }
+        console.log(possibleTargets);
 
         return possibleTargets;
     }

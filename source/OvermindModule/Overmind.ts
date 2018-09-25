@@ -106,8 +106,8 @@ export default class Overmind {
 
     // TODO: Maybe outsource this to User class?
     private changeUserWeighting(user: User, playerID: number, command: Command) {
-        if (command !== null) {
-            const userCommand = user.commands.get(playerID);
+        const userCommand = user.commands.get(playerID);
+        if (userCommand) {
             user.changeWeightBy(userCommand.calculateDifference(command));
         }
     }
@@ -143,7 +143,7 @@ export default class Overmind {
                 generatedCommands.push(generatedCommand);
             }
         }
-        //console.log(generatedCommands);
+
         return generatedCommands;
     }
 
