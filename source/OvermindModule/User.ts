@@ -20,7 +20,7 @@ export default class User {
     }
 
     public changeWeightBy(number: number) {
-        this._weight = Math.min(Math.max(0, this._weight - number), 20);
+        this._weight = Math.min(Math.max(0, this._weight - number), 5);
     }
 
     public get commands(): Map<number, Command> {
