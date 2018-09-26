@@ -163,6 +163,7 @@ export default class Overmind {
         this.callCenter.sendNewRoundInformations(oldGameState);
         UserManager.clearAllUserCommands();
         this.givenCommandCount = 0;
+        this.callCenter.sendAccumulatedCommands();
 
         this.initializeMainInterval();
 
