@@ -107,16 +107,29 @@ export default class Game {
         return this.findNearestMapObject(npc, this.store.players) as Player;
     }
 
+    private helper(mapObject1: MapObject, mapObject2: MapObject){
+        return this._world.shortestPathFromTo(mapObject1.position, mapObject2.position);
+    }
+
     private generateNPCCommandFor(npc: NPC): Command {
         const nearestPlayer = this.findNearestPlayer(npc);
         let direction: Flatten.Vector;
 
         if (nearestPlayer !== null) {
-            direction = (new Flatten.Vector(npc.position, nearestPlayer.position)).normalize();
             if (npc.isInAttackRange(nearestPlayer)) {
+                direction = (new Flatten.Vector(npc.position, nearestPlayer.position)).normalize();
                 return new AttackCommand(npc.ID, direction);
             } else {
-                return new MoveCommand(npc.ID, direction);
+                const foo = this.helper(npc, nearestPlayer);
+                if(foo){    //TODO: change
+                    let vector = new Flatten.Vector(npc.position, new Flatten.Point(foo[1].x, foo[1].y));
+                    direction = vector.length > 1 ? vector.normalize(): vector;
+                    return new MoveCommand(npc.ID, direction);
+                }
+                else{
+                    console.log('Not good');
+                }
+
             }
         } else {
             return new NullCommand();
@@ -163,7 +176,7 @@ export default class Game {
     }
 
     public addNPC(x, y) {
-        let npc = this.store.createNPC(x, y, (point) => new Flatten.Circle(point, 0.5));
+        let npc = this.store.createNPC(x, y, (point) => new Flatten.Circle(point, 0.4));
         this.executeAndStoreCommand(new SpawnCommand(npc));
     }
 
@@ -190,17 +203,7 @@ export default class Game {
 
     public moveMapObject(mapObjectID: number, direction: Flatten.Vector) {
         const mapObject = this.resolveID(mapObjectID);
-        //console.log(mapObject, direction);
 
-        // TODO: We could make this much more efficient if we use a kd-tree or something,
-        // TODO: so that we do not need to check all objects.
-        // calculate possible collisions and edit direction vector
-       /* const collidableObjects = this.store.mapObjects;
-        for (const obstacle of collidableObjects) {
-            if (obstacle !== mapObject) {
-                direction = this.avoidCollision(mapObject, direction, obstacle);
-            }
-        }*/
         const range = this.possibleMovementRange(mapObject, direction);
         mapObject.moveIn(range);
         return range;
@@ -214,7 +217,7 @@ export default class Game {
         let newPossibleObstacles = [];
 
         for(let i = 0; i < 7; i++){     // 7 because we do binary search and log(100) = 7
-            representation = mapObject.simulateRepresentationAfterMoving(direction, (max - min) / 100);
+            representation = mapObject.simulateRepresentationAfterMoving(direction, (max - min + 1) / 100);
 
             for(const obstacle of obstacles){
                 if(representation.intersect(obstacle.mapRepresentation).length > 0){
@@ -251,7 +254,6 @@ export default class Game {
                 }
             }
         }
-        console.log(possibleTargets);
 
         return possibleTargets;
     }
