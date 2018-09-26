@@ -27,24 +27,45 @@ export default class World {
     private _height: number;
     private grid;
 
+    private granularity: number;
+
     constructor(mapData) {
         this._width = mapData.width;
         this._height = mapData.height;
 
+        this.granularity = 1;
+
         this.grid = [];
         let arr;
 
-        for(let i = 0; i < this.height; i++){
+        for(let i = 0; i < this.height * this.granularity ; i++){
             arr = [];
             this.grid.push(arr);
-            for(let k = 0; k < this.width; k++){
+            for(let k = 0; k < this.width * this.granularity ; k++){
                 arr.push(0);
             }
         }
 
+        let x, y;
         for(const blockade of mapData.blockades){
-            this.grid[blockade.y][blockade.x] = 1;
+            x = blockade.x * this.granularity ;
+            y = blockade.y * this.granularity ;
+
+            this.grid[y][x] = 1;
+            for(let i = 1; i <= 0; i++){
+
+                this.grid[y+i][x] = 1;
+                this.grid[y][x+i] = 1;
+                this.grid[y-i][x] = 1;
+                this.grid[y][x-i] = 1;
+                this.grid[y+i][x+i] = 1;
+                this.grid[y-i][x-i] = 1;
+                this.grid[y-i][x+i] = 1;
+                this.grid[y+i][x-i] = 1;
+            }
         }
+
+        console.log(this.grid.map(x => x.join('')).join('\n'));
     }
 
     public get width() {
@@ -55,8 +76,24 @@ export default class World {
         return this._height;
     }
 
+    private convert(number){
+        return Math.floor(number * this.granularity );
+    }
+
     private floorPoint(point: Flatten.Point){
-        return {x: Math.floor(point.x), y: Math.floor(point.y)};
+        return {x: this.convert(point.x), y: this.convert(point.y)};
+    }
+
+    private backtrackPath(currentNode: Node){
+        let path = [];
+        let current = currentNode;
+
+        while(current !== null){
+            path.push({x: current.position.x / this.granularity , y: current.position.y / this.granularity });
+            current = current.parent;
+        }
+
+        return path.reverse();
     }
 
     public shortestPathFromTo(start: Flatten.Point, end: Flatten.Point){
@@ -67,6 +104,7 @@ export default class World {
         let closedList = [];
 
         while(openList.length > 0){
+
             let currentNode = openList[0];
             let currentIndex = 0;
 
@@ -81,15 +119,7 @@ export default class World {
             closedList.push(currentNode);
 
             if(currentNode.equals(endNode)){
-                let path = [];
-                let current = currentNode;
-
-                while(current !== null){
-                    path.push(current.position);
-                    current = current.parent;
-                }
-
-                return path.reverse();
+                return this.backtrackPath(currentNode);
             }
 
             let children = [];
@@ -99,8 +129,8 @@ export default class World {
                     x: currentNode.position.x + newPosition[0],
                     y: currentNode.position.y + newPosition[1]};
 
-                if(nodePosition.x > (this.width - 1) || nodePosition.x < 0 ||
-                    nodePosition.y > (this.height - 1) || nodePosition.y < 0){
+                if(nodePosition.x > (this.width * this.granularity  - 1) || nodePosition.x < 0 ||
+                    nodePosition.y > (this.height * this.granularity  - 1) || nodePosition.y < 0){
                     continue;
                 }
 
@@ -117,8 +147,8 @@ export default class World {
                     x: currentNode.position.x + newPosition[0],
                     y: currentNode.position.y + newPosition[1]};
 
-                if(nodePosition.x > (this.width - 1) || nodePosition.x < 0 ||
-                    nodePosition.y > (this.height - 1) || nodePosition.y < 0){
+                if(nodePosition.x > (this.width * this.granularity  - 1) || nodePosition.x < 0 ||
+                    nodePosition.y > (this.height * this.granularity  - 1) || nodePosition.y < 0){
                     continue;
                 }
 
@@ -134,15 +164,22 @@ export default class World {
 
 
             for(const child of children){
-                if(closedList.reduce((acc, cur) => acc || cur.equals(child), false)){
+                let flag = false;
+
+                for(const closedNode of closedList){
+                    if(closedNode.equals(child)){
+                        flag = true;
+                        break;
+                    }
+                }
+
+                if(flag){
                     continue;
                 }
 
                 child.g = currentNode.g + 1;
                 child.h = ((child.position.x - endNode.position.y) ** 2) + ((child.position.y - endNode.position.y) ** 2);
                 child.f = child.g + child.h;
-
-                let flag = false;
 
                 for(const openNode of openList){
                     if(child.equals(openNode) && child.g > openNode.g){

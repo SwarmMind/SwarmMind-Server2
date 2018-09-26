@@ -82,6 +82,8 @@ export default class Game {
 
     public restart(mapData) {
         this.store.flush();
+        this.npcSpawns = [];
+        this.playerSpawns = [];
         this._lastExecutedCommands = [];
         this.start(mapData);
     }
@@ -128,6 +130,7 @@ export default class Game {
                 }
                 else{
                     console.log('Not good');
+                    return new NullCommand();
                 }
 
             }
@@ -164,9 +167,11 @@ export default class Game {
     public newRound(commands: Command[]) {
         this._lastExecutedCommands = [];
 
-        this.executeAndStoreCommands(commands);      // executes player-action
+        this.executeAndStoreCommands(commands);                     // executes player-action
         this.executeAndStoreCommands(this.generateNPCCommands());   // executes npc-actions
-        this.spawnNPC();
+        if(this.npcNumber < 15){
+            this.spawnNPC();
+        }
         this._round++;
     }
 

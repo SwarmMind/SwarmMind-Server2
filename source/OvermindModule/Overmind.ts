@@ -22,7 +22,7 @@ export default class Overmind {
         this.game = new Game();
         this.callCenter = new CallCenter(this);
 
-        this.roundTime = 3;
+        this.roundTime = 20;
         this.givenCommandCount = 0;
     }
 
@@ -70,7 +70,6 @@ export default class Overmind {
 
         obj.numberOfGivenCommands = this.givenCommandCount;
         obj.maxNumberOfCommands = this.maxNumberOfCommands();
-        //console.log(obj);
         return obj;
     }
 
@@ -89,6 +88,7 @@ export default class Overmind {
 
         for (const user of users) {
             for (const [playerID, command] of user.commands) {
+                command.weight += user.weight;
                 playerCommands.get(playerID).push(command);
             }
         }
@@ -120,7 +120,7 @@ export default class Overmind {
 
         // TODO: write more performant code
 
-        let attackCommands, moveCommands, direction, generatedCommand;
+        let attackCommands, moveCommands, direction, generatedCommand, attackWeight, moveWeight;
         for (const [playerID, commands] of playerCommands) {
             generatedCommand = null;
 
@@ -128,7 +128,10 @@ export default class Overmind {
                 attackCommands = commands.filter((command) => command.type === 'attack');
                 moveCommands = commands.filter((command) => command.type === 'move');
 
-                if (attackCommands.length >= moveCommands.length) {
+                attackWeight = attackCommands.reduce((acc, cur) => acc + cur.weight, 0);
+                moveWeight = moveCommands.reduce((acc, cur) => acc + cur.weight, 0);
+
+                if (attackWeight >= moveWeight) {
                     direction = this.accumulateVectors(attackCommands);
                     generatedCommand = new AttackCommand(playerID, direction);
                 } else {
@@ -142,6 +145,11 @@ export default class Overmind {
 
                 generatedCommands.push(generatedCommand);
             }
+        }
+
+        let i = 0;
+        for(const user of users){
+            console.log(i++ + ' has weight: ' + user.weight);
         }
 
         return generatedCommands;
@@ -168,8 +176,8 @@ export default class Overmind {
     public takeCommand(command: Command, user: User) {
         if (this.game.isValidCommand(command)) {
             user.takeCommand(command);
-            this.callCenter.sendAccumulatedCommands();
             this.givenCommandCount++;
+            this.callCenter.sendAccumulatedCommands();
         }
 
         if(this.givenCommandCount == this.maxNumberOfCommands()){

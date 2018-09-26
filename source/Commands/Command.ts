@@ -3,6 +3,7 @@ import Game from '../GameModule/Game';
 export default abstract class Command {
     private readonly _mapObjectID: number;
     private implication: Command;
+    public weight: number;
     protected _type: string;
 
     constructor(mapObjectID: number) {
@@ -11,6 +12,7 @@ export default abstract class Command {
         this.implication  = null;
 
         this._type = 'abstractCommand';
+        this.weight = 0;
     }
 
     public get mapObjectID() {
