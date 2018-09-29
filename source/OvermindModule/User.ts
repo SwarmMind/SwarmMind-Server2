@@ -19,8 +19,15 @@ export default class User {
         return command;
     }
 
-    public changeWeightBy(delta: number) {
+    private changeWeightBy(delta: number) {
         this._weight = Math.min(Math.max(0, this._weight - delta), 5);
+    }
+
+    public changeWeighting(playerID: number, command: Command){
+        const userCommand = this.commands.get(playerID);
+        if (userCommand) {
+            this.changeWeightBy(userCommand.calculateDifference(command));
+        }
     }
 
     public get commands(): Map<number, Command> {

@@ -61,16 +61,10 @@ export default class FactoryStore {
         return mapObject;
     }
 
-    /**
-     * createNPC
-     */
     public createNPC(x: number, y: number, representationCreator): NPC {
         return this.createMapObject(x, y, NPC, 'addNPC', representationCreator);
     }
 
-    /**
-     * createUnit
-     */
     public createPlayer(x: number, y: number, representationCreator): Player {
         return this.createMapObject(x, y, Player, 'addPlayer', representationCreator);
     }
@@ -79,9 +73,6 @@ export default class FactoryStore {
         return this.createMapObject(x, y, Blockade, 'addBlockade', representationCreator);
     }
 
-    /**
-     * removeObject
-     */
     public removeObject(ID: number) {       // quick and dirty
         this._mapObjects.remove(ID);
     }

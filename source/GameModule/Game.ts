@@ -154,16 +154,14 @@ export default class Game {
     }
 
     private executeAndStoreCommands(commands: Command[]) {
-        // TODO: Maybe we should first execute the movement commands and then the shooting commands?
         for (const command of commands) {
-            this.executeAndStoreCommand( command);
+            this.executeAndStoreCommand(command);
         }
     }
 
     /**
      * starts a new round by executing chosen commands
      * set the lastExecutedCommands property to executed Commands in this method
-     * @param {Command[]} commands
      */
     public newRound(commands: Command[]) {
         this._lastExecutedCommands = [];

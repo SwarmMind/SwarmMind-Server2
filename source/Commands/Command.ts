@@ -27,10 +27,6 @@ export default abstract class Command {
         return {ID: this.mapObjectID, type: this.type};
     }
 
-    public implicate(implication: Command) {
-        this.implication = implication;
-    }
-
     protected executionFunction(game: Game): void | Command {}
 
     public calculateDifference(command: Command): number { return 0; }

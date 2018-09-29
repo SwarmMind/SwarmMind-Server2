@@ -7,7 +7,6 @@ export default class SpawnCommand extends Command {
         super(mapObject.ID);
 
         this.mapObject = mapObject;
-
         this._type = 'spawn';
     }
 

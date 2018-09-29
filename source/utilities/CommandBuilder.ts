@@ -12,7 +12,10 @@ export default class CommandBuilder {
     };
 
     static build(type, ID, direction): Command {
-        return  new (CommandBuilder.commandTypeList[type])(ID, new Flatten.Vector(new Flatten.Point(0, 0), new Flatten.Point(direction.x, direction.y)));
+        return  new (CommandBuilder.commandTypeList[type])(
+                        ID,
+                        new Flatten.Vector(new Flatten.Point(0, 0),
+                        new Flatten.Point(direction.x, direction.y)));
     }
 
     static get types(): string[] {
