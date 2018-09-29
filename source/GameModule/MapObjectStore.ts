@@ -1,7 +1,7 @@
+import Blockade from './Blockade';
 import MapObject from './MapObject';
 import NPC from './NPC';
 import Player from './Player';
-import Blockade from './Blockade';
 
 
 export default class MapObjectStore {
@@ -58,7 +58,7 @@ export default class MapObjectStore {
         this.removeFrom(this._npcs, npc);
     }
 
-    public removeBlockade(blockade: Blockade){
+    public removeBlockade(blockade: Blockade) {
         this.removeFrom(this._blockades, blockade);
     }
 
@@ -71,7 +71,7 @@ export default class MapObjectStore {
         else if(mapObject.isBlockade()) {
             this.removeBlockade(mapObject as Blockade);
         }
-        else{
+        else {
             this.removeNPC(mapObject as NPC);
         }
     }

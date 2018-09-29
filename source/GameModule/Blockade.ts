@@ -1,5 +1,5 @@
-import MapObject from './MapObject';
 import { blockadeData } from '../utilities/MapObjectData';
+import MapObject from './MapObject';
 
 export default class Blockade extends MapObject {
     protected get statsObject() {

@@ -1,15 +1,15 @@
+import Blockade from './Blockade';
 import MapObject from './MapObject';
 import MapObjectStore from './MapObjectStore';
 import NPC from './NPC';
 import Player from './Player';
-import Blockade from './Blockade';
 
 
 export default class FactoryStore {
     private _mapObjects: MapObjectStore;
     private mapObjectCounter: number;
 
-    constructor(){
+    constructor() {
         this.mapObjectCounter = 0;
         this._mapObjects = new MapObjectStore();
     }

@@ -19,8 +19,8 @@ export default class User {
         return command;
     }
 
-    public changeWeightBy(number: number) {
-        this._weight = Math.min(Math.max(0, this._weight - number), 5);
+    public changeWeightBy(delta: number) {
+        this._weight = Math.min(Math.max(0, this._weight - delta), 5);
     }
 
     public get commands(): Map<number, Command> {

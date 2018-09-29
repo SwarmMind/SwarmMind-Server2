@@ -10,13 +10,13 @@ import UserManager from './UserManager';
 
 export default class CallCenter {
     private overmind: Overmind;
-    private connections: Array<Connection>;
+    private connections: Connection[];
 
     constructor(overmind: Overmind, port = 3000) {
         this.overmind = overmind;
         this.connections = [];
 
-        const server = http.createServer(app);    // Made APP to a function (thats how its used in the chat example)
+        const server = http.createServer(app);
         const io = sio(server);
 
         io.on('connection', (socket: sio.Socket) => {
@@ -30,17 +30,15 @@ export default class CallCenter {
             this.sendAccumulatedCommands();
 
             socket.on('command', (unitID, type, direction) => {
-                //console.log('New command: Unit #' + unitID + ' has to ' + type + ' in direction ' + direction);
-
-                const command = CommandBuilder.build(type, parseInt(unitID), JSON.parse(direction));
+                const command = CommandBuilder.build(type, parseInt(unitID, 10), JSON.parse(direction));
 
                 this.overmind.takeCommand(command, user);
             });
 
             socket.on('chat', (userName, text, position) => {
-                this.connectionsDo(function(con){
-                    if(con != connection){
-                        con.send('chat',{userName: userName, text: text, position: position});
+                this.connectionsDo((con) => {
+                    if(con !== connection) {
+                        con.send('chat',{userName, text, position});
                     }
                 });
             });
@@ -48,9 +46,7 @@ export default class CallCenter {
             socket.on('disconnect', () => {
                 console.log('A client disconnected');
 
-                UserManager.removeUser(user);    // Later on we should store inactive users,
-                                                        // so that they have a chance to reconnect
-                                                        // and can be shown on the leaderboards as well
+                UserManager.removeUser(user);
                 this.connections.splice(this.connections.indexOf(connection), 1);
             });
         });

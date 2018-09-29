@@ -10,8 +10,8 @@ import Command from '../Commands/Command';
 import DamageCommand from '../Commands/DamageCommand';
 import MoveCommand from '../Commands/MoveCommand';
 import NullCommand from '../Commands/NullCommand';
+import SpawnCommand from '../Commands/SpawnCommand';
 import MapObject from './MapObject';
-import SpawnCommand from '../Commands/SpawnCommand'
 import SpawnPoint from './SpawnPoint';
 
 function randomNumber(min, max) {
@@ -51,22 +51,22 @@ export default class Game {
             config: {
                 width: this._world.width,
                 height: this._world.height,
-                blockades: this.store.blockades.map(blockade => blockade.serialize()),
+                blockades: this.store.blockades.map((blockade) => blockade.serialize()),
             },
             state: this.state,
         };
     }
 
-    private initializeMapData(mapData){
-        for(const playerSpawn of mapData.playerSpawns){
+    private initializeMapData(mapData) {
+        for(const playerSpawn of mapData.playerSpawns) {
             this.addPlayerSpawnAt(playerSpawn.x, playerSpawn.y);
         }
 
-        for(const npcSpawn of mapData.npcSpawns){
+        for(const npcSpawn of mapData.npcSpawns) {
             this.addNPCSpawnAt(npcSpawn.x, npcSpawn.y);
         }
 
-        for(const blockade of mapData.blockades){
+        for(const blockade of mapData.blockades) {
             this.addBlockade(blockade.x, blockade.y);
         }
     }
@@ -109,7 +109,7 @@ export default class Game {
         return this.findNearestMapObject(npc, this.store.players) as Player;
     }
 
-    private helper(mapObject1: MapObject, mapObject2: MapObject){
+    private helper(mapObject1: MapObject, mapObject2: MapObject) {
         return this._world.shortestPathFromTo(mapObject1.position, mapObject2.position);
     }
 
@@ -122,8 +122,8 @@ export default class Game {
                 direction = (new Flatten.Vector(npc.position, nearestPlayer.position)).normalize();
                 return new AttackCommand(npc.ID, direction);
             } else {
-                //const foo = this.helper(npc, nearestPlayer);
-                //if(foo){    //TODO: change
+                // const foo = this.helper(npc, nearestPlayer);
+                // if(foo){    //TODO: change
                     /*let vector = new Flatten.Vector(npc.position, new Flatten.Point(foo[1].x, foo[1].y));
                     direction = vector.length > 1 ? vector.normalize(): vector;*/
                     direction = (new Flatten.Vector(npc.position, nearestPlayer.position)).normalize();
@@ -170,32 +170,32 @@ export default class Game {
 
         this.executeAndStoreCommands(commands);                     // executes player-action
         this.executeAndStoreCommands(this.generateNPCCommands());   // executes npc-actions
-        if(this.npcNumber < 15){
+        if(this.npcNumber < 15) {
             this.spawnNPC();
         }
         this._round++;
     }
 
     public addPlayer(x, y) {
-        let player = this.store.createPlayer(x, y, (point) => new Flatten.Circle(point, 0.5));
+        const player = this.store.createPlayer(x, y, (point) => new Flatten.Circle(point, 0.5));
         this.executeAndStoreCommand(new SpawnCommand(player));
     }
 
     public addNPC(x, y) {
-        let npc = this.store.createNPC(x, y, (point) => new Flatten.Circle(point, 0.4));
+        const npc = this.store.createNPC(x, y, (point) => new Flatten.Circle(point, 0.4));
         this.executeAndStoreCommand(new SpawnCommand(npc));
     }
 
-    public addBlockade(x, y){
+    public addBlockade(x, y) {
         this.store.createBlockade(x, y,
             (point) => {
             const polygon = new Flatten.Polygon();
-                polygon.addFace([point,
+            polygon.addFace([point,
                                     new Flatten.Point(point.x + 1, point.y),
                                     new Flatten.Point(point.x + 1, point.y + 1),
                                     new Flatten.Point(point.x, point.y + 1),
                                     point]);
-                return polygon;
+            return polygon;
             });
     }
 
@@ -215,38 +215,33 @@ export default class Game {
         return range;
     }
 
-    private possibleMovementRange(mapObject: MapObject, direction: Flatten.Vector){
+    private possibleMovementRange(mapObject: MapObject, direction: Flatten.Vector) {
         let min = 0;
         let max = 100;
-        let obstacles = this.store.mapObjects.filter(obstacle => obstacle.ID !== mapObject.ID);
+        let obstacles = this.store.mapObjects.filter((obstacle) => obstacle.ID !== mapObject.ID);
         let representation = null;
         let newPossibleObstacles = [];
 
-        for(let i = 0; i < 7; i++){     // 7 because we do binary search and log(100) = 7
+        for(let i = 0; i < 7; i++) {     // 7 because we do binary search and log(100) = 7
             representation = mapObject.simulateRepresentationAfterMoving(direction, (max - min + 1) / 100);
 
-            for(const obstacle of obstacles){
-                if(representation.intersect(obstacle.mapRepresentation).length > 0){
-                    newPossibleObstacles.push(obstacle);
-                }
-            }
+            newPossibleObstacles = obstacles.filter((obstacle) =>
+                representation.intersect(obstacle.mapRepresentation).length > 0);
 
-            if(newPossibleObstacles.length > 0){
+            if(newPossibleObstacles.length > 0) {
                 max = (max + min + 1) >> 1;
-            }
-            else{
+            } else {
                 min = (max + min + 1) >> 1;
             }
 
             obstacles = newPossibleObstacles;
-            newPossibleObstacles = [];
         }
 
         return direction.multiply(Math.min((max + min) / 100, 1));
     }
 
     private findPossibleTarget(attacker: MapObject, direction: Flatten.Vector) {
-        if(attacker === null) return []; // TODO why do I need this
+        if(attacker === null) { return []; } // TODO why do I need this
         const line = new Flatten.Line(attacker.position, attacker.position.translate(direction));
         const possibleTargets = [];
 
@@ -264,7 +259,7 @@ export default class Game {
         return possibleTargets;
     }
 
-    public resolveID(mapObjectID: number): MapObject{
+    public resolveID(mapObjectID: number): MapObject {
         return this.store.getObjectByID(mapObjectID);
     }
 
@@ -274,7 +269,6 @@ export default class Game {
         const target = this.findNearestMapObject(attacker, possibleTargets);
 
         if(target !== null) {
-            //console.log(`====> ${attacker.ID} attacks ${target.ID}`);
             return new DamageCommand(attacker, target);
         }
     }
@@ -300,15 +294,15 @@ export default class Game {
         return this.store.playerNumber;
     }
 
-    public get npcNumber(){
+    public get npcNumber() {
         return this.store.npcNumber;
     }
 
-    public addNPCSpawnAt(x: number, y: number){
+    public addNPCSpawnAt(x: number, y: number) {
         this.npcSpawns.push(new SpawnPoint(x + 0.5, y + 0.5, this, NPC));
     }
 
-    public addPlayerSpawnAt(x: number, y: number){
+    public addPlayerSpawnAt(x: number, y: number) {
         this.playerSpawns.push(new SpawnPoint(x + 0.5, y + 0.5, this, Player));
     }
 }

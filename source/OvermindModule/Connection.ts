@@ -14,7 +14,7 @@ export default class Connection {
         return this._user;
     }
 
-    public send(event: string, args){
+    public send(event: string, args) {
         this.socket.emit(event, this.serialize(args));
     }
 

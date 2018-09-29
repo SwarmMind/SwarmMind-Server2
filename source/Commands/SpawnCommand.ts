@@ -1,6 +1,6 @@
-import Command from './Command';
 import Game from '../GameModule/Game';
 import MapObject from '../GameModule/MapObject';
+import Command from './Command';
 
 export default class SpawnCommand extends Command {
     constructor(private mapObject: MapObject) {

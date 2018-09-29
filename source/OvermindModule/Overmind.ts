@@ -1,12 +1,12 @@
 import Flatten from 'flatten-js';
 import AttackCommand from '../Commands/AttackCommand';
 import Command from '../Commands/Command';
+import DirectedCommand from '../Commands/DirectedCommand';
 import MoveCommand from '../Commands/MoveCommand';
 import Game from '../GameModule/Game';
 import CallCenter from '../OvermindModule/CallCenter';
 import User from '../OvermindModule/User';
 import UserManager from '../OvermindModule/UserManager';
-import DirectedCommand from '../Commands/DirectedCommand';
 
 export default class Overmind {
     private roundIntervalID;
@@ -42,7 +42,7 @@ export default class Overmind {
         this.initializeMainInterval();
     }
 
-    public startNextRound(){
+    public startNextRound() {
         clearTimeout(this.roundIntervalID);
         this.processRound();
     }
@@ -121,6 +121,7 @@ export default class Overmind {
         // TODO: write more performant code
 
         let attackCommands, moveCommands, direction, generatedCommand, attackWeight, moveWeight;
+
         for (const [playerID, commands] of playerCommands) {
             generatedCommand = null;
 
@@ -148,7 +149,7 @@ export default class Overmind {
         }
 
         let i = 0;
-        for(const user of users){
+        for(const user of users) {
             console.log(i++ + ' has weight: ' + user.weight);
         }
 
@@ -181,7 +182,7 @@ export default class Overmind {
             this.callCenter.sendAccumulatedCommands();
         }
 
-        if(this.givenCommandCount == this.maxNumberOfCommands()){
+        if(this.givenCommandCount === this.maxNumberOfCommands()) {
             this.startNextRound();
         }
     }
@@ -190,7 +191,7 @@ export default class Overmind {
         const state = this.game.initState;
         Object.assign(state.config, {
             roundTime: this.roundTime,
-            timeSinceLastRound: (Date.now() - this.roundStartTime) / 1000
+            timeSinceLastRound: (Date.now() - this.roundStartTime) / 1000,
         });
 
         return state;

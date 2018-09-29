@@ -1,11 +1,15 @@
 import { npcData } from '../utilities/MapObjectData';
-import MapObject from './MapObject';
 import Game from './Game';
+import MapObject from './MapObject';
 
 
 export default class NPC extends MapObject {
     protected get statsObject() {
         return npcData;
+    }
+
+    static spawnIn(game: Game, x, y) {
+        game.addNPC(x, y);
     }
 
     public isNPC() {
@@ -18,9 +22,5 @@ export default class NPC extends MapObject {
 
     public isTarget(mapObject: MapObject) {
         return mapObject.isPlayer() || mapObject.isBlockade();
-    }
-
-    static spawnIn(game: Game, x, y){
-        game.addNPC(x, y);
     }
 }
