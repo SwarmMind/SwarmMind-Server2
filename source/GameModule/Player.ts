@@ -12,15 +12,15 @@ export default class Player extends MapObject {
         game.addPlayer(x, y);
     }
 
-    public isPlayer() {
+    public isPlayer(): boolean {
         return true;
     }
 
-    public isInAttackRange(mapObject: MapObject) {
+    public isInAttackRange(mapObject: MapObject): boolean {
         return true;
     }
 
-    public isTarget() {
+    public isTarget(): boolean {
         return true;
     }
 }

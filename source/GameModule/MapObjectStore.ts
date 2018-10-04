@@ -17,15 +17,15 @@ export default class MapObjectStore {
         this.objects = new Map();
     }
 
-    public get players() {
+    public get players(): Player[] {
         return Array.from(this._players);
     }
 
-    public get npcs() {
+    public get npcs(): NPC[] {
         return Array.from(this._npcs);
     }
 
-    public get blockades() {
+    public get blockades(): Blockade[] {
         return Array.from(this._blockades);
     }
 

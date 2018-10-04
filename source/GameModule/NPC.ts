@@ -12,15 +12,15 @@ export default class NPC extends MapObject {
         game.addNPC(x, y);
     }
 
-    public isNPC() {
+    public isNPC(): boolean {
         return true;
     }
 
-    public isInAttackRange(mapObject: MapObject) {
+    public isInAttackRange(mapObject: MapObject): boolean {
         return this.distanceTo(mapObject) < this._attackRange;
     }
 
-    public isTarget(mapObject: MapObject) {
+    public isTarget(mapObject: MapObject): boolean {
         return mapObject.isPlayer() || mapObject.isBlockade();
     }
 }

@@ -26,19 +26,19 @@ export default class FactoryStore {
         return this._mapObjects.blockades;
     }
 
-    public get playerNumber() {
+    public get playerNumber(): number {
         return this.players.length;
     }
 
-    public get npcNumber() {
+    public get npcNumber(): number {
         return this.players.length;
     }
 
-    public get blockadesNumber() {
+    public get blockadesNumber(): number {
         return this.blockades.length;
     }
 
-    public get mapObjects() {
+    public get mapObjects(): MapObject[] {
         return this._mapObjects.mapObjects;
     }
 
@@ -47,33 +47,30 @@ export default class FactoryStore {
         this._mapObjects = new MapObjectStore();
     }
 
-    /**
-     * getObjectByID
-     */
     public getObjectByID(ID: number): MapObject | null {
         return this._mapObjects.getByID(ID);
     }
 
-    private createMapObject(x: number, y: number, mapObjectClass, addFunctionName: string, representationCreator) {
+    private createMapObject(x: number, y: number, mapObjectClass, addFunction, representationCreator) {
         const mapObject = new mapObjectClass(this.mapObjectCounter, x, y, representationCreator);
         this.mapObjectCounter++;
-        this._mapObjects[addFunctionName](mapObject);
+        addFunction(mapObject);
         return mapObject;
     }
 
     public createNPC(x: number, y: number, representationCreator): NPC {
-        return this.createMapObject(x, y, NPC, 'addNPC', representationCreator);
+        return this.createMapObject(x, y, NPC, this._mapObjects.addNPC, representationCreator);
     }
 
     public createPlayer(x: number, y: number, representationCreator): Player {
-        return this.createMapObject(x, y, Player, 'addPlayer', representationCreator);
+        return this.createMapObject(x, y, Player, this._mapObjects.addPlayer, representationCreator);
     }
 
     public createBlockade(x: number, y: number, representationCreator): Blockade {
-        return this.createMapObject(x, y, Blockade, 'addBlockade', representationCreator);
+        return this.createMapObject(x, y, Blockade, this._mapObjects.addBlockade, representationCreator);
     }
 
-    public removeObject(ID: number) {       // quick and dirty
+    public removeObject(ID: number) {
         this._mapObjects.remove(ID);
     }
 }

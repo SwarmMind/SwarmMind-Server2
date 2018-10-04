@@ -6,7 +6,13 @@ import MoveCommand from '../Commands/MoveCommand';
 import Game from '../GameModule/Game';
 import CallCenter from '../OvermindModule/CallCenter';
 import User from '../OvermindModule/User';
-import UserManager from '../OvermindModule/UserManager';
+
+function accumulateVectors(vectors: DirectedCommand[]): Flatten.Vector {
+    const sum = vectors.reduce((accumulator, current) =>
+        accumulator.add(current.direction), new Flatten.Vector(0, 0));
+
+    return sum.length > 1 ? sum.normalize() : sum;
+}
 
 export default class Overmind {
     private roundIntervalID;
@@ -48,24 +54,25 @@ export default class Overmind {
     }
 
     public get accumulatedCommands() {
-        const users = UserManager.users;
+        const users = this.callCenter.connectedUsers;
 
         const playerCommands = this.getPlayerCommandMap(users);
 
-        const obj: any = {playerCommands: {}};
+        const summery: any = {playerCommands: {}};  // not a map because we want to convert it to json later
         let attackCommands, moveCommands;
         for (const [playerID, commands] of playerCommands) {
             attackCommands = commands.filter((command) => command.type === 'attack');
             moveCommands = commands.filter((command) => command.type === 'move');
-            obj.playerCommands[playerID] = {
+
+            summery.playerCommands[playerID] = {
                 move: moveCommands.map((command) => command.direction),
                 attack: attackCommands.map((command) => command.direction),
             };
         }
 
-        obj.numberOfGivenCommands = this.givenCommandCount;
-        obj.maxNumberOfCommands = this.maxNumberOfCommands();
-        return obj;
+        summery.numberOfGivenCommands = this.givenCommandCount;
+        summery.maxNumberOfCommands = this.maxNumberOfCommands();
+        return summery;
     }
 
 
@@ -75,7 +82,7 @@ export default class Overmind {
 
     private getPlayerCommandMap(users: User[]): Map<number, Command[]> {
         const playerIDs = this.game.playerIDs;
-        const playerCommands: Map<number, Command[]> = new Map();   // playerID => Command[]
+        const playerCommands: Map<number, Command[]> = new Map();
 
         for (const ID of playerIDs) {
             playerCommands.set(ID, []);
@@ -91,23 +98,19 @@ export default class Overmind {
         return playerCommands;
     }
 
-    // TODO: Outsource to a static class or something? It isn't really Overmind specific.
-    private accumulateVectors(vectors: DirectedCommand[]): Flatten.Vector {
-        const sum = vectors.reduce((accumulator, current) =>
-            accumulator.add(current.direction), new Flatten.Vector(0, 0));
-
-        return sum.length > 1 ? sum.normalize() : sum;
+    private generateCommand(playerID: number, commandList: DirectedCommand[], commandClass){
+        const direction = accumulateVectors(commandList);
+        return new commandClass(playerID, direction);
     }
 
     private generateCommandsToBeExecuted(): Command[] {
-        const users = UserManager.users;
+        const users = this.callCenter.connectedUsers;
         const generatedCommands = [];
 
         const playerCommands = this.getPlayerCommandMap(users);
 
-        // TODO: write more performant code
-
-        let attackCommands, moveCommands, direction, generatedCommand, attackWeight, moveWeight;
+        let attackCommands, moveCommands,  generatedCommand, attackWeight, moveWeight;
+        const reduceFunction = (acc, cur) => acc + cur.weight;
 
         for (const [playerID, commands] of playerCommands) {
             generatedCommand = null;
@@ -116,15 +119,13 @@ export default class Overmind {
                 attackCommands = commands.filter((command) => command.type === 'attack');
                 moveCommands = commands.filter((command) => command.type === 'move');
 
-                attackWeight = attackCommands.reduce((acc, cur) => acc + cur.weight, 0);
-                moveWeight = moveCommands.reduce((acc, cur) => acc + cur.weight, 0);
+                attackWeight = attackCommands.reduce(reduceFunction, 0);
+                moveWeight = moveCommands.reduce(reduceFunction, 0);
 
                 if (attackWeight >= moveWeight) {
-                    direction = this.accumulateVectors(attackCommands);
-                    generatedCommand = new AttackCommand(playerID, direction);
+                    generatedCommand = this.generateCommand(playerID, attackCommands, AttackCommand);
                 } else {
-                    direction = this.accumulateVectors(moveCommands);
-                    generatedCommand = new MoveCommand(playerID, direction);
+                    generatedCommand = this.generateCommand(playerID, moveCommands, MoveCommand);
                 }
 
                 for (const user of users) {
@@ -143,10 +144,11 @@ export default class Overmind {
         this.game.newRound(this.generateCommandsToBeExecuted());
         oldGameState.commands = this.game.lastExecutedCommands.map((command) => command.serialize());
 
+        // send old game state + commands(delta) => client can display current game state
         this.callCenter.sendNewRoundInformations(oldGameState);
-        UserManager.clearAllUserCommands();
+
         this.givenCommandCount = 0;
-        this.callCenter.sendAccumulatedCommands();
+        this.callCenter.resetUserCommandInformations();
 
         this.initializeMainInterval();
 

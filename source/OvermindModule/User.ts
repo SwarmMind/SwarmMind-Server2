@@ -14,18 +14,18 @@ export default class User {
         this._commands.set(command.mapObjectID, this.weightCommand(command));
     }
 
-    private weightCommand(command: Command) {
+    private weightCommand(command: Command): Command {
         command.applyWeight(this._weight);
         return command;
     }
 
     private changeWeightBy(delta: number) {
-        this._weight = Math.min(Math.max(0, this._weight - delta), 5);
+        this._weight = Math.min(Math.max(0, this._weight - delta), 5);      // 0 <= this.weight <= 5
     }
 
     public changeWeighting(playerID: number, command: Command){
         const userCommand = this.commands.get(playerID);
-        if (userCommand) {
+        if (userCommand) {      // only change when this user gave a command to the player
             this.changeWeightBy(userCommand.calculateDifference(command));
         }
     }
@@ -38,11 +38,11 @@ export default class User {
         this._commands = new Map();
     }
 
-    public get givenCommandCount() {
+    public get givenCommandCount(): number {
         return this.commands.size;
     }
 
-    public get weight(){
+    public get weight(): number{
         return this._weight;
     }
 }

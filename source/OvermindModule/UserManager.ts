@@ -2,38 +2,37 @@ import User from './User';
 
 
 export default class UserManager {
-    static _users: Set<User> = new Set();
-    /**
-     * registerNewUser
-     */
-    static registerNewUser(): User {
+    private _users: Set<User>;
+
+    constructor(){
+        this._users= new Set();
+    }
+
+    public registerNewUser(): User {
         const user = new User();
-        UserManager._users.add(user);
+        this._users.add(user);
         return user;
     }
 
-    /**
-     * removeUser
-     */
-    static removeUser(user: User) {
-        UserManager._users.delete(user);
+    public removeUser(user: User) {
+        this._users.delete(user);
     }
 
-    static get users() {
+    public get users(): User[] {
         return Array.from(this._users);
     }
 
-    static get userCount() {
-        return UserManager.users.length;
+    public get userCount(): number {
+        return this.users.length;
     }
 
-    static clearAllUserCommands() {
+    public clearAllUserCommands() {
         for(const user of this._users) {
             user.clearCommands();
         }
     }
 
-    static givenCommandCount() {
+    public givenCommandCount(): number {
         return this.users.reduce((acc, user) => acc + user.givenCommandCount, 0);
     }
 }

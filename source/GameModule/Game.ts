@@ -23,6 +23,7 @@ export default class Game {
     private store: FactoryStore;
 
     private _round: number;
+    private maxNPCNumber: number;
     private _lastExecutedCommands: Command[];
 
     private npcSpawns: SpawnPoint[] = [];
@@ -31,6 +32,7 @@ export default class Game {
     constructor() {
         this.store = new FactoryStore();
         this._lastExecutedCommands = [];
+        this.maxNPCNumber = 20;
     }
 
     public get round() {
@@ -75,6 +77,7 @@ export default class Game {
         this._round = 0;
         this._world = new World(mapData);
         this.initializeMapData(mapData);
+
         for (const playerSpawn of this.playerSpawns) {
             playerSpawn.spawnObject();
         }
@@ -150,7 +153,7 @@ export default class Game {
 
     private executeAndStoreCommand(command: Command) {
         command.execute(this);
-        this._lastExecutedCommands.push(...command);
+        this._lastExecutedCommands.push(...command);  // pushes the command and all implications
     }
 
     private executeAndStoreCommands(commands: Command[]) {
@@ -159,16 +162,12 @@ export default class Game {
         }
     }
 
-    /**
-     * starts a new round by executing chosen commands
-     * set the lastExecutedCommands property to executed Commands in this method
-     */
     public newRound(commands: Command[]) {
         this._lastExecutedCommands = [];
 
         this.executeAndStoreCommands(commands);                     // executes player-action
         this.executeAndStoreCommands(this.generateNPCCommands());   // executes npc-actions
-        if(this.npcNumber < 15) {
+        if(this.npcNumber <= this.maxNPCNumber) {
             this.spawnNPC();
         }
         this._round++;
@@ -201,11 +200,11 @@ export default class Game {
         this.store.removeObject(mapObject.ID);
     }
 
-    public get lastExecutedCommands() {
+    public get lastExecutedCommands(): Command[] {
         return this._lastExecutedCommands;
     }
 
-    public moveMapObject(mapObjectID: number, direction: Flatten.Vector) {
+    public moveMapObject(mapObjectID: number, direction: Flatten.Vector): Flatten.Vector {
         const mapObject = this.resolveID(mapObjectID);
 
         const range = this.possibleMovementRange(mapObject, direction);
@@ -213,7 +212,7 @@ export default class Game {
         return range;
     }
 
-    private possibleMovementRange(mapObject: MapObject, direction: Flatten.Vector) {
+    private possibleMovementRange(mapObject: MapObject, direction: Flatten.Vector): Flatten.Vector {
         let min = 0;
         let max = 100;
         let obstacles = this.store.mapObjects.filter((obstacle) => obstacle.ID !== mapObject.ID);
@@ -238,23 +237,11 @@ export default class Game {
         return direction.multiply(Math.min((max + min) / 100, 1));
     }
 
-    private findPossibleTarget(attacker: MapObject, direction: Flatten.Vector) {
-        if(attacker === null) { return []; } // TODO why do I need this
-        const line = new Flatten.Line(attacker.position, attacker.position.translate(direction));
-        const possibleTargets = [];
+    private findPossibleTargets(attacker: MapObject, direction: Flatten.Vector): MapObject[] {
+        if(attacker === null) { return []; }
 
-        for (const possibleTarget of this.store.mapObjects) { // TODO change this
-            if (attacker.isTarget(possibleTarget) && attacker.ID !== possibleTarget.ID) {
-                if (line.intersect(possibleTarget.mapRepresentation).length > 0) {
-                    if((possibleTarget.position.x - attacker.position.x) / direction.x >= 0 &&
-                        (possibleTarget.position.y - attacker.position.y) / direction.y >= 0) {
-                        possibleTargets.push(possibleTarget);
-                    }
-                }
-            }
-        }
-
-        return possibleTargets;
+        const possibleTargets = this.store.mapObjects;
+        return possibleTargets.filter((target) => attacker.canAttack(target, direction));
     }
 
     public resolveID(mapObjectID: number): MapObject {
@@ -263,7 +250,7 @@ export default class Game {
 
     public attackInDirection(mapObjectID: number, direction: Flatten.Vector) {
         const attacker = this.resolveID(mapObjectID);
-        const possibleTargets = this.findPossibleTarget(attacker, direction);
+        const possibleTargets = this.findPossibleTargets(attacker, direction);
         const target = this.findNearestMapObject(attacker, possibleTargets);
 
         if(target !== null) {
@@ -276,23 +263,23 @@ export default class Game {
         this.removeMapObject(mapObject);
     }
 
-    public get playerIDs() {
+    public get playerIDs(): number[] {
         return this.store.players.map((player) => player.ID);
     }
 
-    public isOver() {
+    public isOver(): boolean {
         return this.store.players.length === 0;
     }
 
-    public isValidCommand(command: Command) {
+    public isValidCommand(command: Command): boolean {
         return this.store.getObjectByID(command.mapObjectID) !== null;
     }
 
-    public get playerNumber() {
+    public get playerNumber(): number {
         return this.store.playerNumber;
     }
 
-    public get npcNumber() {
+    public get npcNumber(): number {
         return this.store.npcNumber;
     }
 

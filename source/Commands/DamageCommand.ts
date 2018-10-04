@@ -8,6 +8,7 @@ import DieCommand from './DieCommand';
 export default class DamageCommand extends DirectedCommand {
     private target: MapObject;
     private attacker: MapObject;
+
     constructor(attacker: MapObject, target: MapObject) {
         super(target.ID, new Flatten.Vector(attacker.position, target.position));
 

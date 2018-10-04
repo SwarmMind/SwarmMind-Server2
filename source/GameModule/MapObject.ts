@@ -25,7 +25,7 @@ export default abstract class MapObject {
         return this._position;
     }
 
-    public get movementRange() {
+    public get movementRange(): number {
         return this._movementRange;
     }
     private _position: Flatten.Point;
@@ -42,6 +42,7 @@ export default abstract class MapObject {
 
         this.importStats(this.statsObject);
     }
+
 
     private importStats(statsObject) {
         for(const key in statsObject) {
@@ -81,6 +82,21 @@ export default abstract class MapObject {
         this._hitpoints -= amount;
     }
 
+    public canAttack(possibleTarget: MapObject, direction: Flatten.Vector): boolean{
+        const line = new Flatten.Line(this.position, this.position.translate(direction));
+
+        if (this.isTarget(possibleTarget) && this.ID !== possibleTarget.ID) {
+            if (line.intersect(possibleTarget.mapRepresentation).length > 0) {
+                if((possibleTarget.position.x - this.position.x) / direction.x >= 0 &&
+                    (possibleTarget.position.y - this.position.y) / direction.y >= 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public attack(mapObject: MapObject) {
         mapObject.receiveDamage(this._attackStrength);
     }
@@ -89,11 +105,11 @@ export default abstract class MapObject {
         return false;
     }
 
-    public isTarget(mapObject: MapObject) {
+    public isTarget(mapObject: MapObject): boolean {
         return false;
     }
 
-    public isDead() {
+    public isDead(): boolean {
         return this._hitpoints <= 0;
     }
 }
