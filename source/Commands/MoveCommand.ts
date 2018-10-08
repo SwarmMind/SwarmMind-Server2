@@ -3,6 +3,8 @@ import Game from '../GameModule/Game';
 import DirectedCommand from './DirectedCommand';
 
 export default class MoveCommand extends DirectedCommand {
+    private executedMovement: Flatten.Vector;
+
     constructor(mapObjectID: number, direction: Flatten.Vector) {
         super(mapObjectID, direction);
 
@@ -10,6 +12,10 @@ export default class MoveCommand extends DirectedCommand {
     }
 
     protected executionFunction(game: Game) {
-        this._direction = game.moveMapObject(this.mapObjectID, this.direction);     // TODO: change this
+        this.executedMovement = game.moveMapObject(this.mapObjectID, this.direction);
+    }
+
+    serialize() {
+        return Object.assign(super.serialize(), {executedMovement: this.executedMovement});
     }
 }
