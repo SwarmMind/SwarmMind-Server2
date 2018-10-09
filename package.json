@@ -10,7 +10,7 @@
     "build": "npm run build-ts",
     "try": "npm run build && npm run start",
     "build-ts": "tsc",
-    "watch-ts": "tsc -w",
+    "watch-ts": "tsc -w"
   },
   "dependencies": {
     "express": "^4.16.3",

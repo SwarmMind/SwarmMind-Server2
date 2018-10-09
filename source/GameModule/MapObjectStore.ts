@@ -81,7 +81,7 @@ export default class MapObjectStore {
     }
 
     private addTo(set: Set<MapObject>, mapObject: MapObject) {
-        set.add(mapObject);
         this.objects.set(mapObject.ID, mapObject);
+        set.add(mapObject);
     }
 }

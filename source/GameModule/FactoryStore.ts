@@ -59,15 +59,18 @@ export default class FactoryStore {
     }
 
     public createNPC(x: number, y: number, representationCreator): NPC {
-        return this.createMapObject(x, y, NPC, this._mapObjects.addNPC, representationCreator);
+        return this.createMapObject(x, y, NPC,
+            this._mapObjects.addNPC.bind(this._mapObjects), representationCreator);
     }
 
     public createPlayer(x: number, y: number, representationCreator): Player {
-        return this.createMapObject(x, y, Player, this._mapObjects.addPlayer, representationCreator);
+        return this.createMapObject(x, y, Player,
+            this._mapObjects.addPlayer.bind(this._mapObjects), representationCreator);
     }
 
     public createBlockade(x: number, y: number, representationCreator): Blockade {
-        return this.createMapObject(x, y, Blockade, this._mapObjects.addBlockade, representationCreator);
+        return this.createMapObject(x, y, Blockade,
+            this._mapObjects.addBlockade.bind(this._mapObjects), representationCreator);
     }
 
     public removeObject(ID: number) {
