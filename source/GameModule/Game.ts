@@ -122,7 +122,6 @@ export default class Game {
 
         if (nearestPlayer !== null) {
             if (npc.isInAttackRange(nearestPlayer)) {
-                console.log(`object at: ${JSON.stringify(npc.position)} attacks player at: ${JSON.stringify(nearestPlayer.position)}`);
                 direction = (new Flatten.Vector(npc.position, nearestPlayer.position)).normalize();
                 return new AttackCommand(npc.ID, direction);
             } else {

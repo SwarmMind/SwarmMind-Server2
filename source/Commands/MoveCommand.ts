@@ -12,8 +12,7 @@ export default class MoveCommand extends DirectedCommand {
     }
 
     protected executionFunction(game: Game) {
-        this._direction = game.moveMapObject(this.mapObjectID, this.direction);
-        // this.executedMovement = game.moveMapObject(this.mapObjectID, this.direction); // TODO change this
+        this.executedMovement = game.moveMapObject(this.mapObjectID, this.direction); // TODO change this
     }
 
     serialize() {
