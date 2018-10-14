@@ -109,8 +109,8 @@ export default class World {
                 }
 
                 if(this.grid[nodePosition.y][nodePosition.x] !== 0 ||
-                    this.grid[0][nodePosition.x] !== 0 ||
-                    this.grid[nodePosition.y][0] !== 0) {
+                    this.grid[currentNode.position.y][nodePosition.x] !== 0 ||
+                    this.grid[nodePosition.y][currentNode.position.x] !== 0) {
                     continue;
                 }
 

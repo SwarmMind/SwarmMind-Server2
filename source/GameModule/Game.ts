@@ -122,20 +122,21 @@ export default class Game {
 
         if (nearestPlayer !== null) {
             if (npc.isInAttackRange(nearestPlayer)) {
+                console.log(`object at: ${JSON.stringify(npc.position)} attacks player at: ${JSON.stringify(nearestPlayer.position)}`);
                 direction = (new Flatten.Vector(npc.position, nearestPlayer.position)).normalize();
                 return new AttackCommand(npc.ID, direction);
             } else {
-                // const foo = this.helper(npc, nearestPlayer);
-                // if(foo){    //TODO: change
-                    /*let vector = new Flatten.Vector(npc.position, new Flatten.Point(foo[1].x, foo[1].y));
-                    direction = vector.length > 1 ? vector.normalize(): vector;*/
-                    direction = (new Flatten.Vector(npc.position, nearestPlayer.position)).normalize();
+                const foo = this.helper(npc, nearestPlayer);
+                if(foo){
+                    const vector = new Flatten.Vector(npc.position, new Flatten.Point(foo[1].x + 0.5, foo[1].y + 0.5));
+                    direction = vector.length > 1 ? vector.normalize(): vector;
+                    // direction = (new Flatten.Vector(npc.position, nearestPlayer.position)).normalize();
                     return new MoveCommand(npc.ID, direction);
-                /*}
+                }
                 else{
                     console.log('Not good');
                     return new NullCommand();
-                }*/
+                }
 
             }
         } else {

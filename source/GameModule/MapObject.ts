@@ -87,8 +87,8 @@ export default abstract class MapObject {
 
         if (this.isTarget(possibleTarget) && this.ID !== possibleTarget.ID) {
             if (line.intersect(possibleTarget.mapRepresentation).length > 0) {
-                if((possibleTarget.position.x - this.position.x) / direction.x >= 0 &&
-                    (possibleTarget.position.y - this.position.y) / direction.y >= 0) {
+                if(Math.sign(possibleTarget.position.x - this.position.x) === Math.sign(direction.x) &&
+                    Math.sign(possibleTarget.position.y - this.position.y) === Math.sign(direction.y)) {
                     return true;
                 }
             }
