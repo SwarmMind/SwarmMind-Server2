@@ -28,7 +28,7 @@ export default class Overmind {
         this.game = new Game();
         this.callCenter = new CallCenter(this);
 
-        this.roundTime = 1;
+        this.roundTime = 20;
         this.givenCommandCount = 0;
     }
 

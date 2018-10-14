@@ -129,7 +129,6 @@ export default class Game {
                 if(foo){
                     const vector = new Flatten.Vector(npc.position, new Flatten.Point(foo[1].x + 0.5, foo[1].y + 0.5));
                     direction = vector.length > 1 ? vector.normalize(): vector;
-                    // direction = (new Flatten.Vector(npc.position, nearestPlayer.position)).normalize();
                     return new MoveCommand(npc.ID, direction);
                 }
                 else{
