@@ -60,7 +60,7 @@ export default class World {
         const closedList = [];
 
         while(openList.length > 0) {
-
+            console.log();
             let currentNode = openList[0];
             let currentIndex = 0;
 
@@ -133,15 +133,22 @@ export default class World {
                     continue;
                 }
 
-                child.g = currentNode.g + 1;
-                child.h = ((child.position.x - endNode.position.y) ** 2)
-                            + ((child.position.y - endNode.position.y) ** 2);
+                child.g = currentNode.g + Math.sqrt(((child.position.x - currentNode.position.y) ** 2)
+                                            + ((child.position.y - currentNode.position.y) ** 2));
+                child.h = Math.sqrt(((child.position.x - endNode.position.y) ** 2)
+                                    + ((child.position.y - endNode.position.y) ** 2));
                 child.f = child.g + child.h;
 
                 for(const openNode of openList) {
-                    if(child.equals(openNode) && child.g > openNode.g) {
-                        flag = true;
-                        break;
+                    if(child.equals(openNode)) {
+                        if(child.g >= openNode.g) {
+                            flag = true;
+                            break;
+                        }
+                        else{
+                            openList.slice(openList.indexOf(openNode), 1);
+                            break;
+                        }
                     }
                 }
 
