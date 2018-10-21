@@ -2,7 +2,7 @@
 The Server for the SwarmMind game.
 
 ## Getting Started
-Just clone the repository and run an `npm install`. Then you can build with `npm run build` and start with `npm run start`.
+Clone the repository and run an `npm install`. After cloning you go to the file node_modules/flatten-js/index.js and change the last line in the file from ```module.exports = f``` to ```module.exports.default = f```. Then you can build with `npm run build` and start with `npm run start`.
 
 ## Exchange format
 The server communicates with the client via `socket.io` events.
