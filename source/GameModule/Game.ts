@@ -133,7 +133,6 @@ export default class Game {
                     return new MoveCommand(npc.ID, direction);
                 }
                 else{
-                    console.log('Not good');
                     return new NullCommand();
                 }
 

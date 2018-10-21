@@ -60,7 +60,6 @@ export default class World {
         const closedList = [];
 
         while(openList.length > 0) {
-            console.log();
             let currentNode = openList[0];
             let currentIndex = 0;
 
